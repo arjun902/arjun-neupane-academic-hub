@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #f6f8fb;
+  color: #172027;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+@layer components {
+  .site-container {
+    @apply mx-auto max-w-site px-4 md:px-6;
+  }
+
+  .section {
+    @apply py-14 md:py-20;
+  }
+
+  .section-band {
+    @apply border-y border-line bg-white;
+  }
+
+  .eyebrow {
+    @apply mb-3 break-words text-xs font-extrabold uppercase tracking-normal text-teal-deep;
+  }
+
+  .h1 {
+    @apply font-serif text-4xl font-bold leading-[1.08] text-navy md:text-6xl;
+  }
+
+  .h2 {
+    @apply font-serif text-3xl font-bold leading-tight text-navy md:text-4xl;
+  }
+
+  .lead {
+    @apply text-base leading-8 text-slate-700 md:text-lg;
+  }
+
+  .card {
+    @apply rounded-lg border border-line bg-white p-6 shadow-[0_1px_0_rgba(18,38,63,0.02)] transition duration-200 hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-soft;
+  }
+
+  .icon-box {
+    @apply mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-teal/10 text-teal-deep;
+  }
+
+  .tag {
+    @apply inline-flex min-h-7 items-center rounded-full bg-teal/10 px-3 py-1 text-xs font-bold text-teal-deep;
+  }
+
+  .pill {
+    @apply inline-flex min-h-7 items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600;
+  }
+
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-transparent px-4 py-3 text-sm font-extrabold transition hover:-translate-y-0.5;
+  }
+
+  .btn-primary {
+    @apply bg-navy text-white shadow-soft hover:bg-[#0c1a2c];
+  }
+
+  .btn-secondary {
+    @apply border-line bg-white text-navy;
+  }
+
+  .btn-ghost {
+    @apply bg-teal/10 text-teal-deep;
+  }
+
+  .btn-gold {
+    @apply bg-[#fff4dc] text-[#765019];
+  }
+
+  .form-input {
+    @apply min-h-11 w-full rounded-lg border border-line bg-slate-50 px-3 py-2 text-ink outline-none focus:border-teal focus:ring-4 focus:ring-teal/10;
+  }
+
+  .hero-bg {
+    background:
+      linear-gradient(90deg, rgba(246, 248, 251, 0.98) 0%, rgba(246, 248, 251, 0.88) 45%, rgba(246, 248, 251, 0.18) 100%),
+      url("/assets/academic-tech-hero.png") center right / cover no-repeat;
+  }
+
+  .hero-fade {
+    background: linear-gradient(180deg, rgba(246, 248, 251, 0) 0%, rgba(246, 248, 251, 1) 100%);
+  }
+
+  .page-hero {
+    background:
+      linear-gradient(90deg, rgba(18, 38, 63, 0.94), rgba(8, 103, 107, 0.78)),
+      url("/assets/academic-tech-hero.png") center / cover no-repeat;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero-bg {
+    background:
+      linear-gradient(90deg, rgba(246, 248, 251, 0.98), rgba(246, 248, 251, 0.72)),
+      url("/assets/academic-tech-hero.png") center / cover no-repeat;
+  }
+}
