@@ -59,7 +59,14 @@ export default function HomePage() {
           </div>
 
           <aside className="hidden lg:grid gap-4">
-            <div className="grid min-h-[420px] content-end overflow-hidden rounded-lg border border-line bg-[linear-gradient(180deg,rgba(18,38,63,0.06),rgba(18,38,63,0.64)),url('/assets/academic-tech-hero.png')] bg-cover bg-center p-6 text-white shadow-premium">
+            <div
+              className="grid min-h-[420px] content-end overflow-hidden rounded-lg border border-line p-6 text-white shadow-premium"
+              style={{
+                background: "linear-gradient(180deg, rgba(18,38,63,0.06), rgba(18,38,63,0.64)), var(--hero-image)",
+                backgroundPosition: "center",
+                backgroundSize: "cover"
+              }}
+            >
               <h3 className="text-xl font-extrabold">Structured Learning Resources for Future Engineers and IT Professionals.</h3>
               <p className="mt-3 max-w-md text-white">Course clarity, practical evaluation, research habits, and modern tools brought into one academic hub.</p>
             </div>

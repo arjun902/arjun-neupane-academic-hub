@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { subjects } from "@/lib/data";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://arjunneupane.edu.np";
   const routes = [

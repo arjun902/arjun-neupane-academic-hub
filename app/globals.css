@@ -107,7 +107,7 @@ textarea {
   .hero-bg {
     background:
       linear-gradient(90deg, rgba(246, 248, 251, 0.98) 0%, rgba(246, 248, 251, 0.88) 45%, rgba(246, 248, 251, 0.18) 100%),
-      url("/assets/academic-tech-hero.png") center right / cover no-repeat;
+      var(--hero-image) center right / cover no-repeat;
   }
 
   .hero-fade {
@@ -117,7 +117,7 @@ textarea {
   .page-hero {
     background:
       linear-gradient(90deg, rgba(18, 38, 63, 0.94), rgba(8, 103, 107, 0.78)),
-      url("/assets/academic-tech-hero.png") center / cover no-repeat;
+      var(--hero-image) center / cover no-repeat;
   }
 }
 
@@ -125,6 +125,6 @@ textarea {
   .hero-bg {
     background:
       linear-gradient(90deg, rgba(246, 248, 251, 0.98), rgba(246, 248, 251, 0.72)),
-      url("/assets/academic-tech-hero.png") center / cover no-repeat;
+      var(--hero-image) center / cover no-repeat;
   }
 }
