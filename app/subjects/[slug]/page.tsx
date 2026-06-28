@@ -52,10 +52,10 @@ export default async function SubjectDetailPage({ params }: { params: SubjectPar
       <section className="section section-band">
         <div className="site-container grid gap-5 md:grid-cols-3">
           <IconCard icon={FileText} title="Course overview">
-            TCP/IP model, network devices, routing, switching, subnetting, services, packet analysis, and security fundamentals.
+            {subject.summary}
           </IconCard>
           <IconCard icon={FlaskConical} title="Practical lab track" tone="gold">
-            Packet Tracer, Wireshark, IP planning, service configuration, troubleshooting, and network documentation.
+            {subject.resources} organized into classroom practice, lab work, revision, and assessment-ready support.
           </IconCard>
           <IconCard icon={ListChecks} title="Assessment criteria" tone="plum">
             Assignment status, lab performance, viva marks, internal progress, attendance, and individual feedback.

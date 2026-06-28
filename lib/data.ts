@@ -129,6 +129,24 @@ export const subjects: Subject[] = [
     icon: Code2
   },
   {
+    name: "Digital Logic",
+    slug: "digital-logic",
+    program: "BCA / CSIT / BE",
+    semester: "Foundation course",
+    resources: "Boolean algebra notes, logic gate labs, K-map practice, old questions",
+    summary: "Core computing foundation covering number systems, Boolean algebra, logic gates, combinational circuits, sequential circuits, and digital design basics.",
+    icon: Blocks
+  },
+  {
+    name: "Microprocessor and Assembly Language",
+    slug: "microprocessor-and-assembly-language",
+    program: "CSIT / BE",
+    semester: "Core hardware course",
+    resources: "Architecture notes, instruction sets, assembly labs, viva sets",
+    summary: "Microprocessor architecture, instruction cycles, memory interfacing, interrupts, assembly programming, and hardware-level system understanding.",
+    icon: Cpu
+  },
+  {
     name: "Java Programming",
     slug: "java-programming",
     program: "BCA / CSIT",
@@ -206,6 +224,8 @@ export const resources: Resource[] = [
   ["Computer Networking Subnetting Workbook", "CSIT", "4th", "Computer Networking", "Notes", 1290, "2026-06-18"],
   ["Java OOP Lab Sheet Pack", "BCA", "3rd", "Java Programming", "Lab Reports", 980, "2026-06-16"],
   ["C Programming Practical Questions", "BCA", "1st", "C Programming", "Question Banks", 1560, "2026-06-13"],
+  ["Digital Logic Boolean Algebra and K-Map Notes", "CSIT", "1st", "Digital Logic", "Notes", 1180, "2026-06-28"],
+  ["Microprocessor 8085 and Assembly Lab Pack", "BE", "4th", "Microprocessor and Assembly Language", "Lab Reports", 890, "2026-06-28"],
   ["DBMS ER Model and Normalization Slides", "BE", "5th", "Database Management System", "Slides", 720, "2026-06-12"],
   ["Numerical Methods Formula and Solution Set", "BCA", "2nd", "Numerical Methods", "Solutions", 1115, "2026-06-10"],
   ["Final Year Project Proposal Format", "CSIT", "8th", "Project Work", "Project Guidelines", 2120, "2026-06-08"],
