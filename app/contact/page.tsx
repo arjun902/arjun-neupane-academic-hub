@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { ExternalLink, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { PageHero } from "@/components/page-hero";
+import { profile } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -23,7 +24,16 @@ export default function ContactPage() {
               <li className="flex gap-3 text-slate-700"><Mail className="text-teal-deep" size={20} /> Email: [ADD EMAIL HERE]</li>
               <li className="flex gap-3 text-slate-700"><Phone className="text-teal-deep" size={20} /> Phone: [ADD PHONE NUMBER HERE]</li>
               <li className="flex gap-3 text-slate-700"><MapPin className="text-teal-deep" size={20} /> Location: Kathmandu, Nepal</li>
-              <li className="flex gap-3 text-slate-700"><Linkedin className="text-teal-deep" size={20} /> LinkedIn: [ADD LINKEDIN URL HERE]</li>
+              <li className="flex gap-3 text-slate-700">
+                <Linkedin className="text-teal-deep" size={20} />
+                <span>
+                  LinkedIn:{" "}
+                  <a className="font-bold text-teal-deep hover:text-navy" href={profile.linkedinUrl} target="_blank" rel="noreferrer">
+                    er-arjun-neupane
+                    <ExternalLink className="ml-1 inline" size={14} />
+                  </a>
+                </span>
+              </li>
             </ul>
           </aside>
           <ContactForm />

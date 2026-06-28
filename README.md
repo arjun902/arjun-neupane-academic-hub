@@ -2,6 +2,10 @@
 
 Modern academic portfolio and student resource platform built with Next.js, Tailwind CSS, Supabase, and Vercel.
 
+Live site: https://arjun902.github.io/arjun-neupane-academic-hub/
+
+LinkedIn: https://www.linkedin.com/in/er-arjun-neupane/
+
 ## Local Setup
 
 ```bash

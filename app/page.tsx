@@ -1,13 +1,16 @@
 import Link from "next/link";
 import {
   ArrowUpRight,
+  Building2,
   ClipboardCheck,
+  ExternalLink,
   GraduationCap,
   Handshake,
   Layers3,
   LibraryBig,
   Linkedin,
   Mail,
+  MapPin,
   Megaphone,
   Microscope,
   Presentation,
@@ -17,9 +20,12 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { SubjectCard, WorkshopCard } from "@/components/cards";
 import { ResourceHub } from "@/components/resource-hub";
-import { posts, subjects, workshops } from "@/lib/data";
+import { posts, profile, subjects, workshops } from "@/lib/data";
 
 export default function HomePage() {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+  const profilePhoto = `${basePath}${profile.photo}`;
+
   return (
     <main>
       <section className="hero-bg relative overflow-hidden py-12 md:py-16">
@@ -36,7 +42,7 @@ export default function HomePage() {
             <p className="mt-5 max-w-[320px] break-words font-extrabold text-teal-deep sm:max-w-none">Computer Engineer | Lecturer | Researcher | Academic Mentor</p>
             <p className="lead mt-5 max-w-[340px] break-words sm:max-w-none">
               Empowering BCA, CSIT, and BE students through structured learning materials, practical labs, research
-              guidance, and technology-focused mentorship.
+              guidance, and technology-focused mentorship across Kathmandu's academic institutions.
             </p>
             <div className="mt-8 grid max-w-[340px] gap-3 sm:max-w-none sm:grid-cols-2">
               <Link className="btn btn-primary" href="/materials">
@@ -47,10 +53,10 @@ export default function HomePage() {
                 <Layers3 size={18} />
                 Explore Subjects
               </Link>
-              <Link className="btn btn-ghost" href="/contact">
+              <a className="btn btn-ghost" href={profile.linkedinUrl} target="_blank" rel="noreferrer">
                 <Linkedin size={18} />
                 Connect on LinkedIn
-              </Link>
+              </a>
               <Link className="btn btn-gold" href="/contact">
                 <Handshake size={18} />
                 Training / Collaboration
@@ -59,20 +65,25 @@ export default function HomePage() {
           </div>
 
           <aside className="hidden lg:grid gap-4">
-            <div
-              className="grid min-h-[420px] content-end overflow-hidden rounded-lg border border-line p-6 text-white shadow-premium"
-              style={{
-                background: "linear-gradient(180deg, rgba(18,38,63,0.06), rgba(18,38,63,0.64)), var(--hero-image)",
-                backgroundPosition: "center",
-                backgroundSize: "cover"
-              }}
-            >
-              <h3 className="text-xl font-extrabold">Structured Learning Resources for Future Engineers and IT Professionals.</h3>
-              <p className="mt-3 max-w-md text-white">Course clarity, practical evaluation, research habits, and modern tools brought into one academic hub.</p>
+            <div className="relative min-h-[520px] overflow-hidden rounded-lg border border-line bg-white shadow-premium">
+              <img
+                src={profilePhoto}
+                alt="Er. Arjun Neupane"
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#101b28]/95 via-[#101b28]/70 to-transparent p-6 text-white">
+                <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-white/75">Academic profile</p>
+                <h3 className="text-2xl font-extrabold">Er. Arjun Neupane</h3>
+                <p className="mt-3 max-w-md text-white/90">{profile.headline}</p>
+                <div className="mt-4 flex items-center gap-2 text-sm font-bold text-white/82">
+                  <MapPin size={17} />
+                  {profile.location}
+                </div>
+              </div>
             </div>
             <div className="grid grid-cols-3 gap-4 rounded-lg border border-line bg-white/90 p-5 shadow-premium">
               <Proof value="16+" label="Subjects and tracks" />
-              <Proof value="3" label="Programs served" />
+              <Proof value="4" label="Current institutions" />
               <Proof value="24/7" label="Resource access" />
             </div>
           </aside>
@@ -85,7 +96,32 @@ export default function HomePage() {
             <Trust title="BCA, CSIT, BE" body="Program-aware learning paths" />
             <Trust title="Labs + Assignments" body="Practice-focused course support" />
             <Trust title="Research Mentoring" body="Proposal, thesis, and paper guidance" />
-            <Trust title="Kathmandu, Nepal" body="Academic support with global relevance" />
+            <Trust title="Kathmandu, Nepal" body="KMC, NCCS, KBC, and Ambition Academy" />
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="site-container">
+          <div className="mb-8 grid items-end gap-5 lg:grid-cols-[1fr_auto]">
+            <div>
+              <p className="eyebrow">Current academic roles</p>
+              <h2 className="h2">Teaching, mentoring, and academic support across Kathmandu.</h2>
+              <p className="mt-4 max-w-3xl text-muted">
+                The public LinkedIn profile and current professional details position Arjun as an engineer, assistant
+                professor, lecturer, researcher, and academic mentor active across multiple colleges and programs.
+              </p>
+            </div>
+            <a className="btn btn-secondary" href={profile.linkedinUrl} target="_blank" rel="noreferrer">
+              <Linkedin size={18} />
+              LinkedIn profile
+              <ExternalLink size={16} />
+            </a>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {profile.currentRoles.map((role) => (
+              <RoleCard key={role.institution} {...role} />
+            ))}
           </div>
         </div>
       </section>
@@ -96,11 +132,10 @@ export default function HomePage() {
             <p className="eyebrow">About the educator</p>
             <h2 className="h2">Premium academic identity with a practical technology backbone.</h2>
             <p className="mt-5 text-muted">
-              Er. Arjun Neupane is a Computer Engineer, academic lecturer, and researcher with experience teaching
-              Computer Science, Engineering, and Information Technology courses across BCA, CSIT, and BE programs.
+              {profile.summary}
             </p>
             <ul className="mt-6 grid gap-4">
-              <Feature icon={GraduationCap}>Computer Engineering background with MSc in Information and Communication Engineering.</Feature>
+              <Feature icon={GraduationCap}>{profile.backgroundHighlights[0]}</Feature>
               <Feature icon={Presentation}>Lecturer for programming, networking, systems, research, and project-based courses.</Feature>
               <Feature icon={Microscope}>Research interests in Quantum Computing, AI, Networking, Cybersecurity, IoT, and Software Systems.</Feature>
               <Feature icon={UsersRound}>Academic mentor for projects, internship reports, workshops, research papers, and publication support.</Feature>
@@ -115,7 +150,7 @@ export default function HomePage() {
             </p>
             <div className="mt-6 border-t border-line pt-6">
               <strong className="block font-serif text-2xl text-navy">Er. Arjun Neupane</strong>
-              <span className="text-muted">Lecturer, researcher, and mentor</span>
+              <span className="text-muted">Assistant Professor, lecturer, researcher, and mentor</span>
             </div>
           </aside>
         </div>
@@ -187,16 +222,16 @@ export default function HomePage() {
               publication guidance, and college training invitations.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link className="btn btn-primary" href="/contact"><Linkedin size={18} /> Connect on LinkedIn</Link>
+              <a className="btn btn-primary" href={profile.linkedinUrl} target="_blank" rel="noreferrer"><Linkedin size={18} /> Connect on LinkedIn</a>
               <Link className="btn btn-secondary" href="/contact"><Mail size={18} /> Contact for collaboration</Link>
             </div>
           </div>
           <aside className="rounded-lg border border-line bg-white p-6 shadow-soft">
             <p className="eyebrow">Professional card</p>
             <h3 className="text-2xl font-bold">Er. Arjun Neupane</h3>
-            <p className="mt-2 text-muted">Computer Engineer | Lecturer | Researcher | Academic Mentor</p>
+            <p className="mt-2 text-muted">{profile.headline}</p>
             <div className="mt-5 flex flex-wrap gap-2">
-              {["Teaching experience", "Student mentorship", "Research work", "Workshops", "Academic resources"].map((tag) => (
+              {[...profile.currentRoles.map((role) => role.institution), "Research work", "Academic resources"].map((tag) => (
                 <span className="tag" key={tag}>{tag}</span>
               ))}
             </div>
@@ -249,6 +284,27 @@ function Feature({ icon: Icon, children }: { icon: LucideIcon; children: React.R
       <Icon className="mt-1 text-teal-deep" size={20} />
       <span>{children}</span>
     </li>
+  );
+}
+
+function RoleCard({
+  institution,
+  role,
+  focus
+}: {
+  institution: string;
+  role: string;
+  focus: string;
+}) {
+  return (
+    <article className="card">
+      <span className="icon-box">
+        <Building2 size={22} />
+      </span>
+      <h3 className="mb-2 text-xl font-bold text-ink">{institution}</h3>
+      <p className="mb-3 text-sm font-extrabold text-teal-deep">{role}</p>
+      <p className="text-muted">{focus}</p>
+    </article>
   );
 }
 

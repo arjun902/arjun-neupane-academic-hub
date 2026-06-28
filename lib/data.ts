@@ -81,6 +81,43 @@ export const navItems = [
   ["Contact", "/contact"]
 ] as const;
 
+export const profile = {
+  name: "Er. Arjun Neupane",
+  headline: "Computer Engineer | Assistant Professor | Lecturer | Researcher | Academic Mentor",
+  linkedinUrl: "https://www.linkedin.com/in/er-arjun-neupane/",
+  photo: "/assets/arjun-neupane-profile.png",
+  location: "Kathmandu, Nepal",
+  summary:
+    "Engineer and academic professional with a background in Electrical, Electronics, Communication, and applied computing. He teaches and mentors BCA, CSIT, and BE students through practical labs, structured resources, research guidance, and project supervision.",
+  backgroundHighlights: [
+    "MSc in Information and Communication Engineering with distinction.",
+    "Institute of Engineering, Pulchowk Campus, Tribhuvan University academic background.",
+    "Teaching and mentoring across computer science, information technology, engineering, networking, research, and project-based courses."
+  ],
+  currentRoles: [
+    {
+      institution: "Kathmandu Model College",
+      role: "Assistant Professor / Lecturer",
+      focus: "Classroom teaching, mentoring, and academic resource support for technology-focused learners."
+    },
+    {
+      institution: "National College of Computer Studies (NCCS)",
+      role: "Assistant Professor / Lecturer",
+      focus: "Computer Science, Information Technology, lab practice, assignments, and student project guidance."
+    },
+    {
+      institution: "Kathmandu Business Campus",
+      role: "Assistant Professor",
+      focus: "Applied computing, digital literacy, research orientation, and academic mentoring."
+    },
+    {
+      institution: "Ambition Academy",
+      role: "Lecturer / Academic Mentor",
+      focus: "Technology education, student support, workshops, and exam-oriented preparation."
+    }
+  ]
+} as const;
+
 export const subjects: Subject[] = [
   {
     name: "C Programming",

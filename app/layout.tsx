@@ -20,12 +20,17 @@ export const metadata: Metadata = {
     "Java Programming Notes",
     "C Programming Lab Report",
     "BCA Project Ideas",
-    "Internship Report Format"
+    "Internship Report Format",
+    "Er Arjun Neupane LinkedIn",
+    "Kathmandu Model College",
+    "National College of Computer Studies",
+    "Kathmandu Business Campus",
+    "Ambition Academy"
   ],
   openGraph: {
     title: "Er. Arjun Neupane | Academic Resource Hub",
-    description: "Structured learning resources for future engineers and IT professionals.",
-    images: ["/assets/academic-tech-hero.png"],
+    description: "Structured learning resources, academic mentoring, and professional profile of Er. Arjun Neupane.",
+    images: ["/assets/arjun-neupane-profile.png"],
     type: "website"
   }
 };
