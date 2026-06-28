@@ -166,7 +166,7 @@ export default function HomePage() {
             action="View all subjects"
           />
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {subjects.slice(0, 6).map((subject) => (
+            {subjects.slice(0, 9).map((subject) => (
               <SubjectCard subject={subject} featured key={subject.slug} />
             ))}
           </div>

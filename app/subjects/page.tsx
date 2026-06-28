@@ -7,7 +7,7 @@ import { subjects } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Subjects",
-  description: "Subject-wise academic resources for BCA, CSIT and BE students including programming, networking, DBMS, cybersecurity, IoT and research methodology."
+  description: "Subject-wise academic resources for BCA, CSIT and BE Computer Engineering students including programming, networking, cryptography, compiler design, quantum computing, DBMS, cybersecurity and research methodology."
 };
 
 export default function SubjectsPage() {

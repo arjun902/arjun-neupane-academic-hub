@@ -174,6 +174,33 @@ export const subjects: Subject[] = [
     icon: Router
   },
   {
+    name: "Cryptography",
+    slug: "cryptography",
+    program: "CSIT / BE Computer Engineering",
+    semester: "Advanced security course",
+    resources: "Classical ciphers, symmetric encryption, public key cryptography, hash functions, digital signatures",
+    summary: "Mathematical and practical foundations of secure communication, encryption, authentication, integrity, key exchange, and real-world cryptographic systems.",
+    icon: ShieldCheck
+  },
+  {
+    name: "Compiler Design",
+    slug: "compiler-design",
+    program: "CSIT / BE Computer Engineering",
+    semester: "Core systems course",
+    resources: "Lexical analysis notes, parsing exercises, syntax-directed translation, optimization examples",
+    summary: "Language processing fundamentals including lexical analysis, parsing, semantic analysis, intermediate code generation, optimization, and compiler construction workflow.",
+    icon: Braces
+  },
+  {
+    name: "Quantum Computing",
+    slug: "quantum-computing",
+    program: "CSIT / BE Computer Engineering",
+    semester: "Advanced computing track",
+    resources: "Qubit basics, quantum gates, circuits, algorithms, simulation notebooks",
+    summary: "Emerging computing paradigm covering qubits, superposition, entanglement, quantum gates, circuits, algorithms, and beginner-friendly simulation practice.",
+    icon: Atom
+  },
+  {
     name: "Numerical Methods",
     slug: "numerical-methods",
     program: "BCA / BE",
@@ -226,6 +253,9 @@ export const resources: Resource[] = [
   ["C Programming Practical Questions", "BCA", "1st", "C Programming", "Question Banks", 1560, "2026-06-13"],
   ["Digital Logic Boolean Algebra and K-Map Notes", "CSIT", "1st", "Digital Logic", "Notes", 1180, "2026-06-28"],
   ["Microprocessor 8085 and Assembly Lab Pack", "BE", "4th", "Microprocessor and Assembly Language", "Lab Reports", 890, "2026-06-28"],
+  ["Cryptography Cipher and Public Key Notes", "BE", "6th", "Cryptography", "Notes", 1040, "2026-06-28"],
+  ["Compiler Design Parsing and Syntax Analysis Pack", "BE", "6th", "Compiler Design", "Notes", 930, "2026-06-28"],
+  ["Quantum Computing Qubit and Circuit Starter Pack", "BE", "Final", "Quantum Computing", "Slides", 760, "2026-06-28"],
   ["DBMS ER Model and Normalization Slides", "BE", "5th", "Database Management System", "Slides", 720, "2026-06-12"],
   ["Numerical Methods Formula and Solution Set", "BCA", "2nd", "Numerical Methods", "Solutions", 1115, "2026-06-10"],
   ["Final Year Project Proposal Format", "CSIT", "8th", "Project Work", "Project Guidelines", 2120, "2026-06-08"],

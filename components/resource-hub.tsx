@@ -5,7 +5,7 @@ import { ResourceCard } from "@/components/cards";
 import { resources } from "@/lib/data";
 
 const programs = ["All", "BCA", "CSIT", "BE"];
-const semesters = ["All", "1st", "2nd", "3rd", "4th", "5th", "8th", "Final"];
+const semesters = ["All", "1st", "2nd", "3rd", "4th", "5th", "6th", "8th", "Final"];
 const types = [
   "All",
   "Notes",
