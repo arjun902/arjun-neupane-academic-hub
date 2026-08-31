@@ -7,20 +7,19 @@ import {
   GraduationCap,
   Handshake,
   Layers3,
-  LibraryBig,
   Linkedin,
   Mail,
   MapPin,
   Megaphone,
   Microscope,
   Presentation,
-  Search,
   UsersRound
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { SubjectCard, WorkshopCard } from "@/components/cards";
-import { ResourceHub } from "@/components/resource-hub";
-import { posts, profile, subjects, workshops } from "@/lib/data";
+import { ProgramCard, RoadmapStep } from "@/components/academic-cards";
+import { WorkshopCard } from "@/components/cards";
+import { academicPrograms } from "@/lib/academics";
+import { posts, profile, workshops } from "@/lib/data";
 
 export default function HomePage() {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -33,33 +32,33 @@ export default function HomePage() {
         <div className="site-container relative z-10 grid min-h-[62vh] items-center gap-10 lg:grid-cols-[0.95fr_0.8fr]">
           <div className="min-w-0 max-w-[720px] overflow-hidden max-[480px]:max-w-[340px]">
             <div className="mb-4 flex flex-wrap items-center gap-3">
-              <p className="eyebrow mb-0">Computer Engineering | Higher Education | Applied Technology</p>
+              <p className="eyebrow mb-0">Computer engineering education in Kathmandu</p>
               <span className="rounded-full border border-[#efd8ae] bg-[#fff7e8] px-3 py-1.5 text-xs font-extrabold text-[#7b561c]">
                 MSc ICE
               </span>
             </div>
             <h1 className="h1 break-words">Er. Arjun Neupane</h1>
-            <p className="mt-5 max-w-[320px] break-words font-extrabold text-teal-deep sm:max-w-none">Computer Engineer | Lecturer | Researcher | Academic Mentor</p>
+            <p className="mt-5 max-w-[320px] break-words font-extrabold text-teal-deep sm:max-w-none">Computer engineer and educator</p>
             <p className="lead mt-5 max-w-[340px] break-words sm:max-w-none">
-              Empowering BCA, CSIT, and BE students through structured learning materials, practical labs, research
-              guidance, and technology-focused mentorship across Kathmandu's academic institutions.
+              I teach BCA, BSc CSIT, and BE Computer Engineering students in Kathmandu. Here you can find course
+              materials, laboratory guidance, notices, and information about project and research supervision.
             </p>
             <div className="mt-8 grid max-w-[340px] gap-3 sm:max-w-none sm:grid-cols-2">
-              <Link className="btn btn-primary" href="/materials">
-                <LibraryBig size={18} />
-                View Study Materials
+              <Link className="btn btn-primary" href="/subjects">
+                <GraduationCap size={18} />
+                Browse course resources
               </Link>
-              <Link className="btn btn-secondary" href="/subjects">
+              <a className="btn btn-secondary" href="#academic-roadmap">
                 <Layers3 size={18} />
-                Explore Subjects
-              </Link>
+                View the study path
+              </a>
               <a className="btn btn-ghost" href={profile.linkedinUrl} target="_blank" rel="noreferrer">
                 <Linkedin size={18} />
                 Connect on LinkedIn
               </a>
-              <Link className="btn btn-gold" href="/contact">
+              <Link className="btn btn-gold" href="/contact?purpose=Training">
                 <Handshake size={18} />
-                Training / Collaboration
+                Training and collaboration
               </Link>
             </div>
           </div>
@@ -82,9 +81,9 @@ export default function HomePage() {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4 rounded-lg border border-line bg-white/90 p-5 shadow-premium">
-              <Proof value="16+" label="Subjects and tracks" />
-              <Proof value="4" label="Current institutions" />
-              <Proof value="24/7" label="Resource access" />
+              <Proof value="3" label="Degree programs" />
+              <Proof value="4" label="Teaching affiliations" />
+              <Proof value="4" label="Resource categories" />
             </div>
           </aside>
         </div>
@@ -93,10 +92,10 @@ export default function HomePage() {
       <section className="relative z-20 -mt-3">
         <div className="site-container">
           <div className="grid overflow-hidden rounded-lg border border-line bg-white shadow-soft md:grid-cols-4">
-            <Trust title="BCA, CSIT, BE" body="Program-aware learning paths" />
-            <Trust title="Labs + Assignments" body="Practice-focused course support" />
-            <Trust title="Research Mentoring" body="Proposal, thesis, and paper guidance" />
-            <Trust title="Kathmandu, Nepal" body="KMC, NCCS, KBC, and Ambition Academy" />
+            <Trust title="BCA, BSc CSIT, and BE" body="Course materials arranged by program" />
+            <Trust title="Laboratory and assignment work" body="Instructions and supporting materials" />
+            <Trust title="Research supervision" body="Advice on proposals, theses, and papers" />
+            <Trust title="Kathmandu, Nepal" body="Teaching across four academic institutions" />
           </div>
         </div>
       </section>
@@ -105,11 +104,11 @@ export default function HomePage() {
         <div className="site-container">
           <div className="mb-8 grid items-end gap-5 lg:grid-cols-[1fr_auto]">
             <div>
-              <p className="eyebrow">Current academic roles</p>
-              <h2 className="h2">Teaching, mentoring, and academic support across Kathmandu.</h2>
+              <p className="eyebrow">Where I teach</p>
+              <h2 className="h2">My current academic roles in Kathmandu.</h2>
               <p className="mt-4 max-w-3xl text-muted">
-                The public LinkedIn profile and current professional details position Arjun as an engineer, assistant
-                professor, lecturer, researcher, and academic mentor active across multiple colleges and programs.
+                At these institutions, I teach computing subjects and supervise practical coursework, student projects,
+                and research. The roles below reflect my current academic affiliations.
               </p>
             </div>
             <a className="btn btn-secondary" href={profile.linkedinUrl} target="_blank" rel="noreferrer">
@@ -129,81 +128,73 @@ export default function HomePage() {
       <section className="section">
         <div className="site-container grid items-center gap-10 lg:grid-cols-[0.95fr_0.7fr]">
           <div>
-            <p className="eyebrow">About the educator</p>
-            <h2 className="h2">Premium academic identity with a practical technology backbone.</h2>
+            <p className="eyebrow">Teaching approach</p>
+            <h2 className="h2">Connecting clear explanations with practical work.</h2>
             <p className="mt-5 text-muted">
-              {profile.summary}
+              My background spans electrical and electronic engineering, communication systems, and applied computing.
+              I teach BCA, BSc CSIT, and BE Computer Engineering students through lectures, labs, assignments, and
+              supervised projects.
             </p>
             <ul className="mt-6 grid gap-4">
               <Feature icon={GraduationCap}>{profile.backgroundHighlights[0]}</Feature>
-              <Feature icon={Presentation}>Lecturer for programming, networking, systems, research, and project-based courses.</Feature>
-              <Feature icon={Microscope}>Research interests in Quantum Computing, AI, Networking, Cybersecurity, IoT, and Software Systems.</Feature>
-              <Feature icon={UsersRound}>Academic mentor for projects, internship reports, workshops, research papers, and publication support.</Feature>
+              <Feature icon={Presentation}>I teach programming, networking, systems, research, and project-based courses.</Feature>
+              <Feature icon={Microscope}>My research interests include quantum computing, AI, networking, cybersecurity, IoT, and software systems.</Feature>
+              <Feature icon={UsersRound}>I mentor students working on projects, internship reports, and research papers.</Feature>
             </ul>
           </div>
           <aside className="rounded-lg border border-line bg-white p-6 shadow-soft">
-            <p className="eyebrow">Academic positioning</p>
-            <h3 className="text-xl font-bold text-ink">Teaching Technology with Clarity, Practice, and Research Orientation.</h3>
+            <p className="eyebrow">How I teach</p>
+            <h3 className="text-xl font-bold text-ink">Understand the idea, practise the method, and explain the result.</h3>
             <p className="mt-3 text-muted">
-              The website is structured for high-traffic student discovery while still presenting a polished profile
-              for colleges, coordinators, and research collaborators.
+              I organise these materials by program and semester so you can connect each concept with its laboratory,
+              assessment, and research context.
             </p>
             <div className="mt-6 border-t border-line pt-6">
               <strong className="block font-serif text-2xl text-navy">Er. Arjun Neupane</strong>
-              <span className="text-muted">Assistant Professor, lecturer, researcher, and mentor</span>
+              <span className="text-muted">Computer engineer, lecturer, researcher, and academic mentor</span>
             </div>
           </aside>
         </div>
       </section>
 
-      <section className="section section-band">
+      <section className="section section-band" id="academic-roadmap">
         <div className="site-container">
           <SectionHead
-            eyebrow="Subjects I teach"
-            title="Course cards built for quick scanning and deeper study."
-            body="Students can move from a subject overview into unit-wise notes, labs, assignments, question banks, viva questions, and project guidance."
+            eyebrow="Course resources by program"
+            title="Start with your program, then choose the semester and subject."
+            body="Resources are kept separate for BSc CSIT, BCA, and BE Computer Engineering. Each subject page groups course notes, assignments, practical or research work, and past questions."
             href="/subjects"
-            action="View all subjects"
+            action="View all programs"
           />
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {subjects.slice(0, 9).map((subject) => (
-              <SubjectCard subject={subject} featured key={subject.slug} />
-            ))}
+          <div className="grid gap-5 lg:grid-cols-3">
+            {academicPrograms.map((program) => <ProgramCard program={program} key={program.slug} />)}
           </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="site-container">
-          <SectionHead
-            eyebrow="Student Resource Hub"
-            title="A resource platform, not a file dump."
-            body="Filter study materials by program, semester, subject, and material type. The structure is ready for Supabase upload and analytics workflows."
-            href="/materials"
-            action="Explore materials"
-            icon={Search}
-          />
-          <ResourceHub />
+          <div className="mt-8 grid gap-5 lg:grid-cols-4">
+            <RoadmapStep number={1} title="Program" body="Choose BSc CSIT, BCA, or BE Computer Engineering." />
+            <RoadmapStep number={2} title="Semester" body="Select Semester 1 through Semester 8." />
+            <RoadmapStep number={3} title="Subject" body="Open the subject listed under your program." />
+            <RoadmapStep number={4} title="Resources" body="Find notes, assignments, practical or research work, and past questions." final />
+          </div>
         </div>
       </section>
 
       <section className="section bg-gradient-to-b from-teal/10 to-[#faf7f0]/40">
         <div className="site-container grid gap-5 md:grid-cols-3">
-          <HomePath icon={ClipboardCheck} title="Grading and academic updates" href="/grading">
-            Assignment status, lab performance, viva marks, internal assessment progress, attendance, feedback, and pending submissions.
+          <HomePath icon={ClipboardCheck} title="Grades and feedback" href="/grading">
+            View published assessment results and teacher feedback through the private grading portal.
           </HomePath>
-          <HomePath icon={Megaphone} title="Notices and announcements" href="/notices" tone="gold">
-            Class updates, deadlines, lab submissions, exams, project defense schedules, workshops, and research opportunities.
+          <HomePath icon={Megaphone} title="Notices and deadlines" href="/notices" tone="gold">
+            Find class announcements, submission deadlines, exam updates, workshop dates, and research opportunities.
           </HomePath>
-          <HomePath icon={Microscope} title="Research and projects" href="/research" tone="plum">
-            Quantum Computing, AI, Cybersecurity, Computer Networks, IoT Systems, academic tools, and supervised student projects.
+          <HomePath icon={Microscope} title="Research and student projects" href="/research" tone="plum">
+            Read about my research interests and the support available for proposals, papers, and student projects.
           </HomePath>
         </div>
       </section>
 
       <section className="section">
         <div className="site-container">
-          <SectionHead eyebrow="Workshops and training" title="Focused academic training for classrooms, projects, and professional readiness." href="/workshops" action="View workshops" />
+          <SectionHead eyebrow="Workshops and training" title="Workshops for students, project teams, and academic departments." href="/workshops" action="View workshops" />
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {workshops.map((workshop) => (
               <WorkshopCard key={workshop.title} {...workshop} />
@@ -215,23 +206,23 @@ export default function HomePage() {
       <section className="section section-band">
         <div className="site-container grid items-center gap-10 lg:grid-cols-[0.95fr_0.7fr]">
           <div>
-            <p className="eyebrow">LinkedIn and collaboration</p>
-            <h2 className="h2">Academic collaboration, training, research, and mentoring.</h2>
+            <p className="eyebrow">Work with me</p>
+            <h2 className="h2">Discuss a workshop, student project, or research collaboration.</h2>
             <p className="mt-5 text-muted">
-              Connect for workshops, classroom resource systems, student project supervision, research collaboration,
-              publication guidance, and college training invitations.
+              I welcome enquiries from colleges, academic teams, and students. Tell me about the course, project, or
+              research activity you have in mind, and I will respond with the relevant details.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a className="btn btn-primary" href={profile.linkedinUrl} target="_blank" rel="noreferrer"><Linkedin size={18} /> Connect on LinkedIn</a>
-              <Link className="btn btn-secondary" href="/contact"><Mail size={18} /> Contact for collaboration</Link>
+              <Link className="btn btn-secondary" href="/contact?purpose=Collaboration"><Mail size={18} /> Contact for collaboration</Link>
             </div>
           </div>
           <aside className="rounded-lg border border-line bg-white p-6 shadow-soft">
-            <p className="eyebrow">Professional card</p>
+            <p className="eyebrow">At a glance</p>
             <h3 className="text-2xl font-bold">Er. Arjun Neupane</h3>
             <p className="mt-2 text-muted">{profile.headline}</p>
             <div className="mt-5 flex flex-wrap gap-2">
-              {[...profile.currentRoles.map((role) => role.institution), "Research work", "Academic resources"].map((tag) => (
+              {[...profile.currentRoles.map((role) => role.institution), "Student supervision", "Course resources"].map((tag) => (
                 <span className="tag" key={tag}>{tag}</span>
               ))}
             </div>
@@ -241,7 +232,7 @@ export default function HomePage() {
 
       <section className="section">
         <div className="site-container">
-          <SectionHead eyebrow="Blog and learning articles" title="SEO-ready content for students searching with real academic intent." href="/blog" action="Read articles" />
+          <SectionHead eyebrow="Study-guide topics" title="Questions from coursework, projects, and research." href="/blog" action="View topics" />
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
               <article className="card grid min-h-[250px]" key={post.title}>
@@ -250,7 +241,6 @@ export default function HomePage() {
                   <h3 className="mb-2 text-xl font-bold text-ink">{post.title}</h3>
                   <p className="text-muted">{post.description}</p>
                 </div>
-                <div className="self-end text-sm font-bold text-muted">{post.read}</div>
               </article>
             ))}
           </div>

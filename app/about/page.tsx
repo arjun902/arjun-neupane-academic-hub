@@ -21,7 +21,7 @@ import { profile } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "About Er. Arjun Neupane",
-  description: "Professional academic profile of Er. Arjun Neupane, Computer Engineer, Lecturer, Researcher and Academic Mentor in Kathmandu, Nepal."
+  description: "Teaching, engineering background, and research interests of Er. Arjun Neupane in Kathmandu, Nepal."
 };
 
 export default function AboutPage() {
@@ -41,24 +41,26 @@ export default function AboutPage() {
           </a>
         }
       >
-        Computer Engineer, lecturer, researcher, and academic mentor focused on practical learning, academic clarity, and
-        research-oriented technology education.
+        I teach computing and engineering students in Kathmandu, with an emphasis on clear explanations, practical work,
+        and careful research.
       </PageHero>
 
       <section className="section">
         <div className="site-container grid items-start gap-10 lg:grid-cols-[0.95fr_0.7fr]">
           <div>
-            <p className="eyebrow">Professional introduction</p>
-            <h2 className="h2">Academic credibility with a modern technology teaching practice.</h2>
+            <p className="eyebrow">About me</p>
+            <h2 className="h2">Teaching grounded in engineering and applied computing.</h2>
             <p className="mt-5 text-muted">
-              {profile.summary}
+              I am a computer engineer and academic with a background in electrical and electronic engineering,
+              communication systems, and applied computing. I teach and mentor BCA, BSc CSIT, and BE Computer
+              Engineering students through lectures, lab work, projects, and research.
             </p>
             <p className="mt-4 text-muted">
-              This website is designed as both a professional portfolio and a student learning resource platform, making
-              materials, notices, grading updates, and mentoring pathways easier to access.
+              I use this website to share course resources, notices, grading updates, and information about mentoring and
+              workshops.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link className="btn btn-primary" href="/materials"><LibraryBig size={18} /> Explore resources</Link>
+              <Link className="btn btn-primary" href="/subjects"><LibraryBig size={18} /> Browse course resources</Link>
               <a className="btn btn-secondary" href={profile.linkedinUrl} target="_blank" rel="noreferrer">
                 <Linkedin size={18} />
                 LinkedIn
@@ -73,8 +75,8 @@ export default function AboutPage() {
               <ul className="grid gap-4">
                 <li className="flex gap-3 text-slate-700"><BadgeCheck className="text-teal-deep" size={20} /> {profile.backgroundHighlights[0]}</li>
                 <li className="flex gap-3 text-slate-700"><GraduationCap className="text-teal-deep" size={20} /> {profile.backgroundHighlights[1]}</li>
-                <li className="flex gap-3 text-slate-700"><Presentation className="text-teal-deep" size={20} /> Lecturer for BCA, CSIT, and BE-related courses.</li>
-                <li className="flex gap-3 text-slate-700"><BookOpenCheck className="text-teal-deep" size={20} /> Mentor for projects, internship reports, workshops, and research papers.</li>
+                <li className="flex gap-3 text-slate-700"><Presentation className="text-teal-deep" size={20} /> Teaching across BCA, BSc CSIT, and BE Computer Engineering.</li>
+                <li className="flex gap-3 text-slate-700"><BookOpenCheck className="text-teal-deep" size={20} /> I supervise student projects and advise on internship reports and research papers.</li>
                 <li className="flex gap-3 text-slate-700"><MapPin className="text-teal-deep" size={20} /> {profile.location}</li>
               </ul>
             </div>
@@ -84,8 +86,8 @@ export default function AboutPage() {
 
       <section className="section section-band">
         <div className="site-container">
-          <p className="eyebrow">Current affiliations</p>
-          <h2 className="h2 mb-8">Currently working with leading academic institutions.</h2>
+          <p className="eyebrow">Current teaching affiliations</p>
+          <h2 className="h2 mb-8">Institutions where I currently teach and mentor.</h2>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {profile.currentRoles.map((role) => (
               <article className="card" key={role.institution}>
@@ -103,17 +105,17 @@ export default function AboutPage() {
 
       <section className="section">
         <div className="site-container">
-          <p className="eyebrow">Academic focus</p>
-          <h2 className="h2 mb-8">Areas of teaching and research interest.</h2>
+          <p className="eyebrow">Teaching and research</p>
+          <h2 className="h2 mb-8">Areas I teach and study.</h2>
           <div className="grid gap-5 md:grid-cols-3">
             <IconCard icon={Atom} title="Quantum Computing and AI">
-              Student-friendly research entry points, simulation tools, literature framing, and emerging computing paradigms.
+              I use introductory simulations and focused reading to help students develop research questions suited to undergraduate projects.
             </IconCard>
             <IconCard icon={Router} title="Networking and Cybersecurity" tone="gold">
-              Network administration, secure systems, practical labs, threat awareness, and infrastructure fundamentals.
+              I connect network theory and administration with laboratory exercises in configuration, diagnosis, and security.
             </IconCard>
             <IconCard icon={Blocks} title="Software and IoT Systems" tone="plum">
-              Project architecture, embedded systems, databases, UI/UX, automation, and academic software tooling.
+              I supervise projects that combine software, databases, embedded devices, and user interfaces.
             </IconCard>
           </div>
         </div>
@@ -122,15 +124,15 @@ export default function AboutPage() {
       <section className="section">
         <div className="site-container grid gap-10 lg:grid-cols-[0.7fr_1fr]">
           <div>
-            <p className="eyebrow">Academic journey</p>
-            <h2 className="h2">Built around teaching, mentoring, and applied research.</h2>
+            <p className="eyebrow">Academic background</p>
+            <h2 className="h2">From engineering study to teaching and research.</h2>
           </div>
           <div className="grid gap-6 border-l-2 border-line pl-6">
             {[
-              ["Engineering foundation", "Computer Engineering background with a focus on systems, networks, programming, and applied computing."],
-              ["Graduate specialization", "MSc Information and Communication Engineering with research orientation in modern computing systems."],
-              ["Teaching practice", "Lecturing and mentoring BCA, CSIT, and BE students through theory, labs, assignments, and projects."],
-              ["Resource platform", "Building a structured, searchable academic hub for notes, grading, notices, workshops, and student support."]
+              ["Engineering foundation", "My engineering background developed my interest in systems, networks, programming, and applied computing."],
+              ["Graduate study", "I completed an MSc in Information and Communication Engineering with distinction."],
+              ["Teaching practice", "I teach BCA, BSc CSIT, and BE Computer Engineering through lectures, labs, assignments, and projects."],
+              ["Course resource library", "I maintain this site so students can find course materials and academic updates without searching across separate channels."]
             ].map(([title, body]) => (
               <div className="relative before:absolute before:-left-[31px] before:top-1 before:h-3 before:w-3 before:rounded-full before:border-4 before:border-white before:bg-gold before:ring-1 before:ring-line" key={title}>
                 <h3 className="text-xl font-bold">{title}</h3>

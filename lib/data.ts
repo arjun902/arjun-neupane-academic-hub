@@ -49,30 +49,10 @@ export type Subject = {
   icon: LucideIcon;
 };
 
-export type Resource = {
-  title: string;
-  program: "BCA" | "CSIT" | "BE";
-  semester: string;
-  subject: string;
-  type:
-    | "Notes"
-    | "Slides"
-    | "Lab Reports"
-    | "Assignments"
-    | "Question Banks"
-    | "Solutions"
-    | "Project Guidelines"
-    | "Internship Report Format"
-    | "Research Paper Templates";
-  downloads: number;
-  updated: string;
-};
-
 export const navItems = [
   ["Home", "/"],
   ["About", "/about"],
-  ["Subjects", "/subjects"],
-  ["Materials", "/materials"],
+  ["Programs", "/subjects"],
   ["Grading", "/grading"],
   ["Notices", "/notices"],
   ["Research", "/research"],
@@ -83,37 +63,38 @@ export const navItems = [
 
 export const profile = {
   name: "Er. Arjun Neupane",
-  headline: "Computer Engineer | Assistant Professor | Lecturer | Researcher | Academic Mentor",
+  headline: "Computer Engineer, Assistant Professor, Researcher, and Academic Mentor",
   linkedinUrl: "https://www.linkedin.com/in/er-arjun-neupane/",
+  githubUrl: "https://github.com/arjun902/arjun-neupane-academic-hub",
   photo: "/assets/arjun-neupane-profile.png",
   location: "Kathmandu, Nepal",
   summary:
-    "Engineer and academic professional with a background in Electrical, Electronics, Communication, and applied computing. He teaches and mentors BCA, CSIT, and BE students through practical labs, structured resources, research guidance, and project supervision.",
+    "Arjun Neupane is a computer engineer and educator with training in electrical, electronic, communication, and computing systems. He teaches BCA, BSc CSIT, and BE students and supports their laboratory work, projects, and research.",
   backgroundHighlights: [
     "MSc in Information and Communication Engineering with distinction.",
-    "Institute of Engineering, Pulchowk Campus, Tribhuvan University academic background.",
-    "Teaching and mentoring across computer science, information technology, engineering, networking, research, and project-based courses."
+    "Academic training at the Institute of Engineering, Pulchowk Campus, Tribhuvan University.",
+    "Teaching and mentoring experience in computing, engineering, networking, research methods, and project-based courses."
   ],
   currentRoles: [
     {
       institution: "Kathmandu Model College",
       role: "Assistant Professor / Lecturer",
-      focus: "Classroom teaching, mentoring, and academic resource support for technology-focused learners."
+      focus: "Teaches technology-related courses and supports students through classwork, practical sessions, and academic advising."
     },
     {
       institution: "National College of Computer Studies (NCCS)",
       role: "Assistant Professor / Lecturer",
-      focus: "Computer Science, Information Technology, lab practice, assignments, and student project guidance."
+      focus: "Teaches computer science and information technology courses, including laboratory work, assignments, and student projects."
     },
     {
       institution: "Kathmandu Business Campus",
       role: "Assistant Professor",
-      focus: "Applied computing, digital literacy, research orientation, and academic mentoring."
+      focus: "Teaches applied computing and supports students with research preparation and academic work."
     },
     {
       institution: "Ambition Academy",
       role: "Lecturer / Academic Mentor",
-      focus: "Technology education, student support, workshops, and exam-oriented preparation."
+      focus: "Teaches technology courses and supports workshops, examinations, and student mentoring."
     }
   ]
 } as const;
@@ -123,170 +104,146 @@ export const subjects: Subject[] = [
     name: "C Programming",
     slug: "c-programming",
     program: "BCA / CSIT / BE",
-    semester: "First year",
+    semester: "Semester 1",
     resources: "Notes, lab sheets, assignments, viva sets",
-    summary: "Foundational programming practice with syntax clarity, problem solving, and lab-ready examples.",
+    summary: "Students learn to translate problems into structured C programs through practice with control flow, functions, arrays, pointers, files, and debugging.",
     icon: Code2
   },
   {
     name: "Digital Logic",
     slug: "digital-logic",
     program: "BCA / CSIT / BE",
-    semester: "Foundation course",
+    semester: "Semester 1 or 2, depending on program",
     resources: "Boolean algebra notes, logic gate labs, K-map practice, old questions",
-    summary: "Core computing foundation covering number systems, Boolean algebra, logic gates, combinational circuits, sequential circuits, and digital design basics.",
+    summary: "This subject connects number systems and Boolean algebra with the design and analysis of combinational and sequential circuits.",
     icon: Blocks
   },
   {
     name: "Microprocessor and Assembly Language",
     slug: "microprocessor-and-assembly-language",
     program: "CSIT / BE",
-    semester: "Core hardware course",
+    semester: "Semester 4 or 5, depending on program",
     resources: "Architecture notes, instruction sets, assembly labs, viva sets",
-    summary: "Microprocessor architecture, instruction cycles, memory interfacing, interrupts, assembly programming, and hardware-level system understanding.",
+    summary: "Students examine processor architecture, instruction execution, memory and I/O interfacing, interrupts, and assembly-language programming through practical exercises.",
     icon: Cpu
   },
   {
     name: "Java Programming",
     slug: "java-programming",
     program: "BCA / CSIT",
-    semester: "Second year",
+    semester: "Semester 3 or 4, depending on program",
     resources: "Slides, OOP labs, question bank",
-    summary: "Object-oriented programming, GUI basics, exception handling, collections, and project practice.",
+    summary: "The subject develops object-oriented programming skills through classes, interfaces, exception handling, collections, and small applications.",
     icon: Braces
   },
   {
     name: "Data Structures and Algorithms",
     slug: "data-structures-and-algorithms",
-    program: "CSIT / BE",
-    semester: "Core course",
+    program: "BCA / CSIT / BE",
+    semester: "Semester 3",
     resources: "Unit notes, solved problems, old questions",
-    summary: "Lists, stacks, queues, trees, graphs, hashing, sorting, complexity, and interview-level reasoning.",
+    summary: "Students learn to select, implement, and evaluate data structures and algorithms through complexity analysis and programming exercises.",
     icon: Network
   },
   {
     name: "Computer Networking",
     slug: "computer-networking",
     program: "BCA / CSIT / BE",
-    semester: "Mid semester",
+    semester: "Semester 5",
     resources: "Topology labs, subnetting sheets, packet analysis",
-    summary: "TCP/IP, routing, switching, addressing, services, security basics, and practical network design.",
+    summary: "The subject develops a working understanding of TCP/IP, subnetting, switching, routing, network services, packet analysis, and troubleshooting.",
     icon: Router
   },
   {
     name: "Cryptography",
     slug: "cryptography",
-    program: "CSIT / BE Computer Engineering",
-    semester: "Advanced security course",
+    program: "CSIT / BE",
+    semester: "Semester 6",
     resources: "Classical ciphers, symmetric encryption, public key cryptography, hash functions, digital signatures",
-    summary: "Mathematical and practical foundations of secure communication, encryption, authentication, integrity, key exchange, and real-world cryptographic systems.",
+    summary: "Students study encryption, hashing, digital signatures, authentication, and key exchange, with attention to their use in protecting modern systems.",
     icon: ShieldCheck
   },
   {
     name: "Compiler Design",
     slug: "compiler-design",
-    program: "CSIT / BE Computer Engineering",
-    semester: "Core systems course",
+    program: "CSIT / BE",
+    semester: "Semester 6",
     resources: "Lexical analysis notes, parsing exercises, syntax-directed translation, optimization examples",
-    summary: "Language processing fundamentals including lexical analysis, parsing, semantic analysis, intermediate code generation, optimization, and compiler construction workflow.",
+    summary: "The subject follows a source program through lexical analysis, parsing, semantic analysis, intermediate-code generation, and optimization.",
     icon: Braces
   },
   {
     name: "Quantum Computing",
     slug: "quantum-computing",
-    program: "CSIT / BE Computer Engineering",
-    semester: "Advanced computing track",
+    program: "BCA / CSIT / BE",
+    semester: "Semester 8",
     resources: "Qubit basics, quantum gates, circuits, algorithms, simulation notebooks",
-    summary: "Emerging computing paradigm covering qubits, superposition, entanglement, quantum gates, circuits, algorithms, and beginner-friendly simulation practice.",
+    summary: "An introduction to qubits, superposition, entanglement, quantum gates, circuits, and selected algorithms, supported by simulation exercises.",
     icon: Atom
   },
   {
     name: "Numerical Methods",
     slug: "numerical-methods",
-    program: "BCA / BE",
-    semester: "Mathematics core",
+    program: "BCA / CSIT / BE",
+    semester: "Semester 2, 3, or 4, depending on program",
     resources: "Formula sheets, MATLAB/Python labs, solutions",
-    summary: "Root finding, interpolation, integration, differential equations, and error-aware computation.",
+    summary: "Students apply numerical techniques to equations, interpolation, integration, and differential equations while examining approximation and error.",
     icon: Sigma
   },
   {
     name: "Database Management System",
     slug: "database-management-system",
     program: "BCA / CSIT / BE",
-    semester: "Core course",
+    semester: "Semester 4 or 5, depending on program",
     resources: "SQL labs, ER models, assignments",
-    summary: "Relational modeling, normalization, SQL, transactions, indexing, and application-backed data design.",
+    summary: "The subject moves from conceptual data modelling to normalization, SQL, transactions, indexing, and reliable database-backed applications.",
     icon: Database
   },
   {
     name: "Cybersecurity Fundamentals",
     slug: "cybersecurity-fundamentals",
-    program: "CSIT / BE",
-    semester: "Elective / workshop",
+    program: "BCA / CSIT / BE",
+    semester: "Semester 6 or 7, depending on program",
     resources: "Checklists, labs, threat models",
-    summary: "Secure systems thinking, authentication, web risks, cryptography basics, and defensive practice.",
+    summary: "Students examine common threats and defensive controls through access management, secure configuration, web security, threat modelling, and practical labs.",
     icon: ShieldCheck
   },
   {
     name: "IoT and Embedded Systems",
     slug: "iot-and-embedded-systems",
-    program: "BE / Workshop",
-    semester: "Project track",
+    program: "CSIT / BE",
+    semester: "Semester 7 or 8, depending on program",
     resources: "Sensor labs, project ideas, reports",
-    summary: "Microcontrollers, sensors, data capture, cloud dashboards, and working prototype guidance.",
+    summary: "Students design small connected systems using sensors, microcontrollers, communication protocols, data collection, and dashboard-based monitoring.",
     icon: Cpu
   },
   {
     name: "Research Methodology",
     slug: "research-methodology",
     program: "BCA / CSIT / BE",
-    semester: "Final year",
+    semester: "Semester 7 or 8, depending on program",
     resources: "Proposal templates, citation guides, paper support",
-    summary: "Research questions, literature review, methodology, academic writing, and publication discipline.",
+    summary: "Students learn to frame researchable questions, review literature critically, select appropriate methods, analyse evidence, and report findings with proper citation and ethical practice.",
     icon: BookOpenCheck
   }
 ];
 
-export const resources: Resource[] = [
-  ["Computer Networking Subnetting Workbook", "CSIT", "4th", "Computer Networking", "Notes", 1290, "2026-06-18"],
-  ["Java OOP Lab Sheet Pack", "BCA", "3rd", "Java Programming", "Lab Reports", 980, "2026-06-16"],
-  ["C Programming Practical Questions", "BCA", "1st", "C Programming", "Question Banks", 1560, "2026-06-13"],
-  ["Digital Logic Boolean Algebra and K-Map Notes", "CSIT", "1st", "Digital Logic", "Notes", 1180, "2026-06-28"],
-  ["Microprocessor 8085 and Assembly Lab Pack", "BE", "4th", "Microprocessor and Assembly Language", "Lab Reports", 890, "2026-06-28"],
-  ["Cryptography Cipher and Public Key Notes", "BE", "6th", "Cryptography", "Notes", 1040, "2026-06-28"],
-  ["Compiler Design Parsing and Syntax Analysis Pack", "BE", "6th", "Compiler Design", "Notes", 930, "2026-06-28"],
-  ["Quantum Computing Qubit and Circuit Starter Pack", "BE", "Final", "Quantum Computing", "Slides", 760, "2026-06-28"],
-  ["DBMS ER Model and Normalization Slides", "BE", "5th", "Database Management System", "Slides", 720, "2026-06-12"],
-  ["Numerical Methods Formula and Solution Set", "BCA", "2nd", "Numerical Methods", "Solutions", 1115, "2026-06-10"],
-  ["Final Year Project Proposal Format", "CSIT", "8th", "Project Work", "Project Guidelines", 2120, "2026-06-08"],
-  ["Internship Report Template", "BCA", "8th", "Internship Report", "Internship Report Format", 1840, "2026-06-05"],
-  ["Research Paper IEEE Starter Template", "BE", "Final", "Research Methodology", "Research Paper Templates", 640, "2026-06-03"]
-].map(([title, program, semester, subject, type, downloads, updated]) => ({
-  title: title as string,
-  program: program as Resource["program"],
-  semester: semester as string,
-  subject: subject as string,
-  type: type as Resource["type"],
-  downloads: downloads as number,
-  updated: updated as string
-}));
-
 export const notices = [
   {
-    title: "Computer Networking lab submission window closes this Friday",
+    title: "Computer Networking laboratory submission deadline",
     type: "Lab notice",
     date: "2026-06-22",
     status: "Urgent",
     tone: "plum",
-    body: "Submit packet tracer files, subnetting sheet, and reflection notes before the internal evaluation cycle."
+    body: "Submit the Packet Tracer file, completed subnetting sheet, and brief reflection before the internal assessment."
   },
   {
-    title: "Research proposal clinic for final year students",
+    title: "Research proposal review session for final-year students",
     type: "Research",
     date: "2026-06-19",
     status: "New",
     tone: "teal",
-    body: "Students preparing thesis, capstone, or publication drafts can book a review slot for topic framing."
+    body: "Students preparing a thesis, capstone, or paper may book a review session to discuss the research question, scope, and proposed method."
   },
   {
     title: "Java assignment feedback published",
@@ -294,25 +251,25 @@ export const notices = [
     date: "2026-06-17",
     status: "Published",
     tone: "green",
-    body: "Rubric remarks are available in the student dashboard with improvement notes for code structure."
+    body: "Rubric scores and comments on code structure are available in the student dashboard."
   },
   {
-    title: "Git and GitHub training registration open",
+    title: "Registration open for the Git and GitHub workshop",
     type: "Workshop",
     date: "2026-06-14",
     status: "New",
     tone: "teal",
-    body: "Seats are prioritized for project and internship students working on collaborative repositories."
+    body: "Priority will be given to project and internship students who are working in shared code repositories."
   }
 ];
 
 export const workshops = [
-  ["IoT Prototype Lab", "3 days", "BE / CSIT project students", "Build a sensor-driven data pipeline and dashboard.", Cpu],
-  ["Cybersecurity Essentials", "2 days", "BCA / CSIT / BE", "Practice threat modeling, web risks, and defensive checklists.", ShieldAlert],
-  ["Git and GitHub Training", "1 day", "Project teams", "Move from folder-based work to professional version control.", GitBranch],
-  ["Python and AI Bootcamp", "4 days", "Technology learners", "Use Python notebooks for data handling and practical ML workflows.", BrainCircuit],
-  ["Research Paper Writing", "2 days", "Final year students", "Structure a publishable paper with citations and review discipline.", FileText],
-  ["UI/UX and Figma Workshop", "2 days", "Software project groups", "Translate requirements into usable interfaces and design systems.", Figma]
+  ["IoT Prototype Lab", "3 days", "BE / CSIT project students", "Develop a sensor-based system that records data and presents it on a simple dashboard.", Cpu],
+  ["Cybersecurity Essentials", "2 days", "BCA / CSIT / BE", "Work through threat modelling, common web vulnerabilities, and basic defensive controls.", ShieldAlert],
+  ["Git and GitHub Training", "1 day", "Project teams", "Learn to manage shared projects with commits, branches, pull requests, and code review.", GitBranch],
+  ["Python and AI Bootcamp", "4 days", "Students", "Use Python notebooks to prepare data, explore datasets, and build introductory machine-learning models.", BrainCircuit],
+  ["Research Paper Writing", "2 days", "Final year students", "Plan and revise a research paper with attention to argument, evidence, structure, and citation.", FileText],
+  ["UI/UX and Figma Workshop", "2 days", "Software project groups", "Turn project requirements into accessible interface prototypes and a consistent set of components.", Figma]
 ].map(([title, duration, audience, outcome, icon]) => ({
   title: title as string,
   duration: duration as string,
@@ -323,40 +280,34 @@ export const workshops = [
 
 export const posts = [
   {
-    title: "How to Prepare a BCA Project Proposal That Survives Review",
+    title: "Preparing a BCA Project Proposal for Academic Review",
     category: "Project Ideas",
-    description: "A practical structure for problem statements, scope, methodology, timeline, and evaluation criteria.",
-    read: "7 min read"
+    description: "A guide to writing the problem statement, defining the scope, selecting a method, and planning the evaluation."
   },
   {
-    title: "Computer Networking Notes: Subnetting Without Memorizing Tricks",
+    title: "A Step-by-Step Approach to Subnetting",
     category: "Networking and Cybersecurity",
-    description: "A clear method for solving subnetting questions with reusable exam and lab patterns.",
-    read: "9 min read"
+    description: "A worked method for calculating network ranges and checking subnetting answers in class, laboratory, and examination settings."
   },
   {
-    title: "Java OOP Concepts for CSIT Students",
+    title: "Object-Oriented Programming in Java for CSIT Students",
     category: "Programming Tutorials",
-    description: "Classes, objects, inheritance, interfaces, and exceptions explained through classroom examples.",
-    read: "6 min read"
+    description: "An explanation of classes, objects, inheritance, interfaces, and exceptions using classroom examples."
   },
   {
-    title: "Internship Report Format for IT Students in Nepal",
+    title: "Structuring an IT Internship Report in Nepal",
     category: "Internship Report Writing",
-    description: "Recommended chapter flow, formatting habits, screenshots, references, and viva preparation.",
-    read: "8 min read"
+    description: "Guidance on chapter structure, formatting, evidence from practical work, references, and viva preparation."
   },
   {
-    title: "AI and Quantum Computing: A Student-Friendly Research Map",
+    title: "Starting Undergraduate Research in AI and Quantum Computing",
     category: "AI and Quantum Computing",
-    description: "Entry points for literature review, simulation tools, and undergraduate research exploration.",
-    read: "10 min read"
+    description: "Suggestions for defining a manageable topic, beginning a literature review, and selecting suitable simulation tools."
   },
   {
-    title: "Old Questions to Practice Before Numerical Methods Internal Exams",
+    title: "A Revision Plan for Numerical Methods Internal Assessments",
     category: "BCA Notes",
-    description: "A preparation sequence for root finding, interpolation, integration, and differential equations.",
-    read: "5 min read"
+    description: "A study sequence covering root finding, interpolation, numerical integration, and differential equations."
   }
 ];
 

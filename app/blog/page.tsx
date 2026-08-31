@@ -5,29 +5,28 @@ import { PageHero } from "@/components/page-hero";
 import { posts } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Blog and Learning Articles",
-  description: "SEO-ready academic articles on programming tutorials, BCA notes, CSIT notes, BE engineering notes, research guidance, project ideas, AI, quantum computing, networking and cybersecurity."
+  title: "Study Guides and Article Topics",
+  description: "Study-guide topics in programming, computer networks, research methods, project work, AI, and quantum computing."
 };
 
 export default function BlogPage() {
   return (
     <main>
-      <PageHero breadcrumb="Home / Blog" title="Blog and Learning Articles">
-        Programming tutorials, BCA notes, CSIT notes, BE engineering notes, research guidance, project ideas, internship
-        report writing, AI, quantum computing, networking, cybersecurity, and IT career guidance.
+      <PageHero breadcrumb="Home / Blog" title="Study Guides and Article Topics">
+        Browse topics drawn from course concepts, project planning, academic writing, AI, and quantum computing.
       </PageHero>
       <section className="section">
         <div className="site-container">
           <div className="mb-8 grid items-end gap-5 lg:grid-cols-[1fr_auto]">
             <div>
-              <p className="eyebrow">Learning content</p>
-              <h2 className="h2">Built for organic discovery and useful student reading.</h2>
+              <p className="eyebrow">Topic library</p>
+              <h2 className="h2">Questions worth exploring beyond the classroom.</h2>
               <p className="mt-4 max-w-3xl text-muted">
-                Article templates are ready for meta titles, descriptions, keywords, table of contents, internal links,
-                and downloadable resources.
+                Each topic begins with a question students commonly encounter in coursework, laboratories, projects, or
+                academic writing. Use the summaries to choose what to explore next.
               </p>
             </div>
-            <Link className="btn btn-secondary" href="/materials"><LinkIcon size={18} /> Link to resources</Link>
+            <Link className="btn btn-secondary" href="/subjects"><LinkIcon size={18} /> Browse subject resources</Link>
           </div>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
@@ -37,7 +36,6 @@ export default function BlogPage() {
                   <h3 className="mb-2 text-xl font-bold">{post.title}</h3>
                   <p className="text-muted">{post.description}</p>
                 </div>
-                <div className="self-end text-sm font-bold text-muted">{post.read}</div>
               </article>
             ))}
           </div>
@@ -46,20 +44,19 @@ export default function BlogPage() {
       <section className="section section-band">
         <div className="site-container grid items-start gap-10 lg:grid-cols-[0.9fr_0.7fr]">
           <div>
-            <p className="eyebrow">SEO categories</p>
-            <h2 className="h2">Search terms aligned with student intent.</h2>
+            <p className="eyebrow">Topics covered</p>
+            <h2 className="h2">Coursework, projects, and research.</h2>
             <p className="mt-5 text-muted">
-              BCA Notes Nepal, CSIT Notes Nepal, BE Computer Engineering Notes, Numerical Methods Notes, Computer
-              Networking Notes, Java Programming Notes, C Programming Lab Report, BCA Project Ideas, Internship Report
-              Format, and CSIT Study Materials.
+              Topics include programming, computer networks, numerical methods, internship reports, project proposals,
+              artificial intelligence, and quantum computing.
             </p>
           </div>
           <aside className="rounded-lg border border-line bg-white p-6 shadow-soft">
-            <h3 className="mb-4 text-xl font-bold">Article structure</h3>
+            <h3 className="mb-4 text-xl font-bold">How to use these topics</h3>
             <ul className="grid gap-4">
-              <li className="flex gap-3 text-slate-700"><Tags className="text-teal-deep" size={20} /> Meta title, meta description, keywords, and Open Graph support.</li>
-              <li className="flex gap-3 text-slate-700"><ListTree className="text-teal-deep" size={20} /> Table of contents and internal links to subjects, downloads, and notices.</li>
-              <li className="flex gap-3 text-slate-700"><FileDown className="text-teal-deep" size={20} /> Downloadable resources attached where useful.</li>
+              <li className="flex gap-3 text-slate-700"><Tags className="text-teal-deep" size={20} /> Choose a topic that matches your current subject or assignment.</li>
+              <li className="flex gap-3 text-slate-700"><ListTree className="text-teal-deep" size={20} /> Follow the explanation from the main idea to its practical use.</li>
+              <li className="flex gap-3 text-slate-700"><FileDown className="text-teal-deep" size={20} /> Open the related course resources when you need more practice.</li>
             </ul>
           </aside>
         </div>

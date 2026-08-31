@@ -8,33 +8,43 @@ const units = [
   {
     label: "Overview and syllabus",
     title: "Unit 1: Course Overview and Foundations",
-    body: "Syllabus map, learning outcomes, prerequisite concepts, grading rubric, and preparation checklist."
+    body: "Review the syllabus, learning outcomes, prerequisite concepts, assessment criteria, and recommended preparation."
   },
   {
     label: "Unit-wise notes",
     title: "Unit 2: Core Theory and Classroom Notes",
-    body: "Unit-wise explanations with diagrams, key definitions, solved examples, and old question alignment."
+    body: "Study the main ideas through explanations, diagrams, definitions, worked examples, and relevant past questions."
   },
   {
     label: "Labs and assignments",
     title: "Unit 3: Practical Labs and Assignments",
-    body: "Lab sheets, submission format, viva questions, sample outputs, and evaluation checkpoints."
+    body: "Complete the practical sheets and assignments, then check the required format, expected output, and viva questions."
   },
   {
     label: "Question bank",
     title: "Unit 4: Question Bank and Solutions",
-    body: "Exam-focused question sets, model answers, short notes, numerical practice, and revision sequence."
+    body: "Practise with past questions, model answers, short notes, numerical exercises, and a planned revision sequence."
   },
   {
     label: "Projects and grading",
     title: "Unit 5: Project Ideas and Assessment",
-    body: "Mini project options, report format, grading criteria, defense preparation, and feedback workflow."
+    body: "Choose a manageable project, follow the report format and assessment criteria, and prepare to explain your decisions."
   }
 ];
 
 export function UnitExplorer() {
   const [active, setActive] = useState(0);
   const unit = units[active];
+
+  function downloadUnit() {
+    const text = `${unit.title}\n${"=".repeat(unit.title.length)}\n\n${unit.body}\n\nUse this outline as a revision checklist. Sign in to the Student Dashboard for the course files shared by your teacher.`;
+    const blobUrl = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    const anchor = document.createElement("a");
+    anchor.href = blobUrl;
+    anchor.download = `unit-${active + 1}-study-outline.txt`;
+    anchor.click();
+    URL.revokeObjectURL(blobUrl);
+  }
 
   return (
     <div className="grid gap-5 lg:grid-cols-[280px_1fr]">
@@ -60,19 +70,19 @@ export function UnitExplorer() {
             <span className="icon-box">
               <FileDown size={22} />
             </span>
-            <h3 className="mb-2 text-xl font-bold">Download Pack</h3>
-            <p className="mb-5 text-muted">PDF notes, lab sheet, assignment brief, and quick revision checklist.</p>
-            <button type="button" className="btn btn-secondary">
+            <h3 className="mb-2 text-xl font-bold">Study outline</h3>
+            <p className="mb-5 text-muted">Keep a short outline of the notes, practical work, assignment, and revision tasks for this unit.</p>
+            <button type="button" className="btn btn-secondary" onClick={downloadUnit}>
               <Download size={18} />
-              Download resources
+              Download study outline
             </button>
           </article>
           <article className="card">
             <span className="icon-box bg-[#f8eaf0] text-plum">
               <MessageSquareText size={22} />
             </span>
-            <h3 className="mb-2 text-xl font-bold">Teacher Feedback</h3>
-            <p className="mb-5 text-muted">Ask unit-specific questions and receive structured feedback through the student dashboard.</p>
+            <h3 className="mb-2 text-xl font-bold">Ask your teacher</h3>
+            <p className="mb-5 text-muted">Use the student dashboard to ask a question about this unit or review your teacher's feedback.</p>
             <Link href="/student" className="btn btn-ghost">
               <Send size={18} />
               Open dashboard

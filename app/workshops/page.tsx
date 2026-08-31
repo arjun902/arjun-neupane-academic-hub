@@ -7,7 +7,7 @@ import { workshops } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Workshops and Training",
-  description: "Academic workshops in IoT, cybersecurity, Git and GitHub, Python and AI, research paper writing, internship reports, UI/UX and networking."
+  description: "Practical workshops for students and academic teams on computing, research writing, project tools, cybersecurity, IoT, and AI."
 };
 
 export default function WorkshopsPage() {
@@ -18,21 +18,21 @@ export default function WorkshopsPage() {
         title="Workshops and Training"
         actions={
           <>
-            <Link className="btn btn-primary" href="/contact"><CalendarPlus size={18} /> Request workshop</Link>
-            <Link className="btn btn-secondary" href="/materials"><Download size={18} /> View materials</Link>
+            <Link className="btn btn-primary" href="/contact?purpose=Training"><CalendarPlus size={18} /> Request workshop</Link>
+            <Link className="btn btn-secondary" href="/subjects"><Download size={18} /> Browse subject resources</Link>
           </>
         }
       >
-        Focused training for IoT, cybersecurity, Git and GitHub, Python and AI, research paper writing, internship
-        reports, UI/UX, networking, and server administration.
+        I offer workshops for classes, project teams, and academic departments. Each session combines a concise
+        explanation with guided exercises and time for questions.
       </PageHero>
       <section className="section">
         <div className="site-container">
-          <p className="eyebrow">Training catalog</p>
-          <h2 className="h2">Designed for classrooms, project teams, and academic departments.</h2>
+          <p className="eyebrow">Available workshops</p>
+          <h2 className="h2">Short courses with guided practice.</h2>
           <p className="mb-8 mt-4 max-w-3xl text-muted">
-            Each workshop can include overview, duration, target students, learning outcomes, required tools,
-            registration workflow, certificate details, and contact actions.
+            Duration and content can be adjusted to the participants' level and the time available. Use the contact form
+            to discuss the group, prerequisites, schedule, and intended learning outcomes.
           </p>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {workshops.map((workshop) => (
