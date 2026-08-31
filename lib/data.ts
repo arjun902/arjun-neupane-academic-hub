@@ -104,7 +104,7 @@ export const subjects: Subject[] = [
     name: "C Programming",
     slug: "c-programming",
     program: "BCA / CSIT / BE",
-    semester: "Semester 1",
+    semester: "Semester 1 in CSIT/BE; Semester 2 in BCA",
     resources: "Notes, lab sheets, assignments, viva sets",
     summary: "Students learn to translate problems into structured C programs through practice with control flow, functions, arrays, pointers, files, and debugging.",
     icon: Code2

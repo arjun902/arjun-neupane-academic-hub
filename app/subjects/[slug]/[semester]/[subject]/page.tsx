@@ -102,6 +102,7 @@ export default async function SubjectResourcePage({ params }: { params: SubjectP
       <section className="section pt-8 md:pt-10">
         <div className="site-container">
           <CourseResourceExplorer
+            programSlug={program.slug}
             programName={program.name}
             programShortName={program.shortName}
             semesterNumber={semesterNo}

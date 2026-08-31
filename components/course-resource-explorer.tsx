@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Download,
+  ExternalLink,
   FileQuestion,
   FileText,
   FlaskConical,
@@ -13,7 +14,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { CourseOffering, ResourceCategorySlug } from "@/lib/academics";
+import type { CourseOffering, ProgramSlug, ResourceCategorySlug } from "@/lib/academics";
+import { getBundledCourseResources } from "@/lib/bundled-course-resources";
 import { supabase } from "@/lib/supabase";
 
 type Category = {
@@ -91,11 +93,13 @@ const researchDeliverables: Record<ResourceCategorySlug, string[]> = {
 };
 
 export function CourseResourceExplorer({
+  programSlug,
   programName,
   programShortName,
   semesterNumber,
   course
 }: {
+  programSlug: ProgramSlug;
   programName: string;
   programShortName: string;
   semesterNumber: number;
@@ -109,7 +113,11 @@ export function CourseResourceExplorer({
   const courseDeliverables = course.practical ? deliverables : researchDeliverables;
   const active = courseCategories.find((category) => category.slug === activeSlug) ?? courseCategories[0];
   const ActiveIcon = active.icon;
-  const activeFiles = publishedResources.filter((item) => categoryForType(item.material_type, course.practical) === active.slug);
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+  const bundledResources = getBundledCourseResources(programSlug, semesterNumber, course.slug);
+  const bundledFiles = bundledResources.filter((item) => item.category === active.slug);
+  const publishedFiles = publishedResources.filter((item) => categoryForType(item.material_type, course.practical) === active.slug);
+  const availableFileCount = bundledFiles.length + publishedFiles.length;
 
   function moveTab(event: React.KeyboardEvent<HTMLButtonElement>, currentIndex: number) {
     let nextIndex = currentIndex;
@@ -215,7 +223,7 @@ export function CourseResourceExplorer({
       "Collection scope:",
       ...courseDeliverables[active.slug].map((item, index) => `${index + 1}. ${item}`),
       "",
-      "Sign in to the Student Dashboard for course files and updates published by your teacher."
+      "Open the public PDFs on this page, or sign in to the Student Dashboard for additional files and updates published by your teacher."
     ];
     const blobUrl = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" }));
     const anchor = document.createElement("a");
@@ -231,8 +239,8 @@ export function CourseResourceExplorer({
         <p className="eyebrow">Subject resource library</p>
         <h2 className="h2" id="course-resources-title">Resources for {course.name}.</h2>
         <p className="mt-4 text-muted">
-          Select a collection to review published files and its intended scope. New material appears here as it is prepared
-          for teaching, practice, research, and assessment.
+          Select a collection to open the available course files and review its intended scope. Additional material appears
+          here as it is prepared for teaching, practice, research, and assessment.
         </p>
       </div>
 
@@ -244,6 +252,7 @@ export function CourseResourceExplorer({
         {courseCategories.map((category, index) => {
           const Icon = category.icon;
           const selected = category.slug === active.slug;
+          const publicFileCount = bundledResources.filter((item) => item.category === category.slug).length;
           return (
             <button
               key={category.slug}
@@ -263,7 +272,11 @@ export function CourseResourceExplorer({
             >
               <Icon className="mb-3" size={22} />
               <strong className="block text-base">{category.shortLabel}</strong>
-              <span className="mt-1 block text-xs font-semibold text-muted">View collection scope</span>
+              <span className="mt-1 block text-xs font-semibold text-muted">
+                {publicFileCount
+                  ? `${publicFileCount} public ${publicFileCount === 1 ? "PDF" : "PDFs"}`
+                  : "View collection scope"}
+              </span>
             </button>
           );
         })}
@@ -287,21 +300,51 @@ export function CourseResourceExplorer({
         <div className="mt-6 rounded-lg border border-line bg-slate-50 p-4 md:p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h4 className="font-bold text-ink">Published {active.label.toLowerCase()}</h4>
-              <p className="mt-1 text-sm text-muted">This list contains only files assigned to this program, semester, and subject.</p>
+              <h4 className="font-bold text-ink">Available {active.label.toLowerCase()}</h4>
+              <p className="mt-1 text-sm text-muted">Every file below is assigned specifically to this program, semester, subject, and collection.</p>
             </div>
-            <span className="pill">{activeFiles.length} {activeFiles.length === 1 ? "file" : "files"}</span>
+            <span className="pill">{availableFileCount} {availableFileCount === 1 ? "file" : "files"}</span>
           </div>
-          {loadState === "loading" ? <p className="text-sm text-muted">Checking the latest published files...</p> : null}
-          {loadState === "error" ? <p className="text-sm text-plum">Published files could not be loaded right now. The collection outline remains available below.</p> : null}
-          {loadState === "ready" && !activeFiles.length ? (
+          {bundledFiles.length ? (
+            <div className="grid gap-3">
+              {bundledFiles.map((item) => (
+                <article className="rounded-lg border border-line bg-white p-4" key={item.filePath}>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="max-w-3xl">
+                      <div className="flex items-start gap-3">
+                        <FileText className="mt-0.5 shrink-0 text-teal-deep" size={20} />
+                        <div>
+                          <strong className="text-ink">{item.title}</strong>
+                          <p className="mt-1 text-sm leading-6 text-muted">{item.description}</p>
+                          <p className="mt-2 text-xs font-semibold text-muted">
+                            PDF · {item.pages} {item.pages === 1 ? "page" : "pages"} · Document credit: {item.documentCredit}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <a
+                      className="btn btn-secondary shrink-0"
+                      href={`${basePath}${item.filePath}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <ExternalLink size={17} /> Open PDF
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : null}
+          {loadState === "loading" ? <p className={`${bundledFiles.length ? "mt-3 " : ""}text-sm text-muted`}>Checking for additional published files...</p> : null}
+          {loadState === "error" ? <p className={`${bundledFiles.length ? "mt-3 " : ""}text-sm text-plum`}>Additional teacher uploads could not be loaded right now. The public PDFs and collection outline remain available.</p> : null}
+          {loadState === "ready" && !availableFileCount ? (
             <p className="rounded-lg border border-dashed border-slate-300 bg-white p-4 text-sm text-muted">
               No files have been published in this collection yet.
             </p>
           ) : null}
-          {activeFiles.length ? (
-            <div className="grid gap-3">
-              {activeFiles.map((item) => (
+          {publishedFiles.length ? (
+            <div className={`${bundledFiles.length ? "mt-3 " : ""}grid gap-3`}>
+              {publishedFiles.map((item) => (
                 <article className="flex flex-col gap-3 rounded-lg border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between" key={item.id}>
                   <div>
                     <strong className="text-ink">{item.title}</strong>
@@ -334,7 +377,7 @@ export function CourseResourceExplorer({
             <Download size={18} /> Download collection outline
           </button>
           <Link className="btn btn-primary" href="/login">
-            <LockKeyhole size={18} /> Sign in for course files
+            <LockKeyhole size={18} /> Sign in for additional files
           </Link>
         </div>
       </div>

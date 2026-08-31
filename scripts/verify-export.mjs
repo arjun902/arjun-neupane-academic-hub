@@ -19,6 +19,10 @@ function filesWithin(directory) {
 const htmlFiles = filesWithin(outputRoot).filter((file) => file.endsWith(".html"));
 const refs = new Set();
 const failures = [];
+const publicResourceRoot = join(process.cwd(), "public", "resources");
+const publicResourceFiles = existsSync(publicResourceRoot)
+  ? filesWithin(publicResourceRoot).filter((file) => file.endsWith(".pdf"))
+  : [];
 
 for (const file of htmlFiles) {
   const html = readFileSync(file, "utf8");
@@ -47,10 +51,19 @@ for (const ref of refs) {
   if (!candidates.some(existsSync)) failures.push(`Missing export target for ${ref}`);
 }
 
+for (const resourceFile of publicResourceFiles) {
+  const resourcePath = relative(join(process.cwd(), "public"), resourceFile);
+  if (!existsSync(join(outputRoot, resourcePath))) {
+    failures.push(`Missing exported public resource: ${resourcePath}`);
+  }
+}
+
 if (failures.length) {
   console.error(`Export verification failed with ${failures.length} issue(s):`);
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
 
-console.log(`Verified ${htmlFiles.length} HTML files and ${refs.size} unique links/assets.`);
+console.log(
+  `Verified ${htmlFiles.length} HTML files, ${refs.size} unique links/assets, and ${publicResourceFiles.length} public PDF resources.`
+);

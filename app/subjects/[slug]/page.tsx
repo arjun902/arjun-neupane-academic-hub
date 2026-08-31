@@ -114,6 +114,11 @@ export default async function ProgramPage({ params }: { params: ProgramParams })
                             course={course}
                           />
                         ))}
+                        {!semester.offerings.length ? (
+                          <p className="rounded-lg border border-dashed border-slate-300 bg-white p-4 text-sm text-muted">
+                            No subject collection is currently published for this semester.
+                          </p>
+                        ) : null}
                       </div>
                     </article>
                   ))}

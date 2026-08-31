@@ -305,23 +305,22 @@ export const academicPrograms = [
         number: 1,
         year: 1,
         label: "Semester 1",
-        offerings: [
-          {
-            slug: "c-programming",
-            name: "C Programming",
-            code: "BCA-R101",
-            credits: 3,
-            summary: "Students learn to translate problems into structured C programs through practice with control flow, functions, arrays, pointers, files, and debugging.",
-            practical: true,
-            updated: "2026-08-24"
-          }
-        ]
+        offerings: []
       },
       {
         number: 2,
         year: 1,
         label: "Semester 2",
         offerings: [
+          {
+            slug: "c-programming",
+            name: "C Programming",
+            code: "CACS151",
+            credits: 4,
+            summary: "Students learn to translate problems into structured C programs through practice with control flow, functions, arrays, pointers, files, and debugging.",
+            practical: true,
+            updated: "2026-08-31"
+          },
           {
             slug: "digital-logic",
             name: "Digital Logic",
