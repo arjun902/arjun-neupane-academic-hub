@@ -1,45 +1,44 @@
-import type { Metadata } from "next";
-import { ExternalLink, Linkedin, Mail, MapPin, Phone } from "lucide-react";
-import { ContactForm } from "@/components/contact-form";
-import { PageHero } from "@/components/page-hero";
-import { profile } from "@/lib/data";
-
-export const metadata: Metadata = {
-  title: "Contact",
-  description: "Contact Er. Arjun Neupane about a course, workshop, student project, research activity, or institutional invitation."
-};
-
-export default function ContactPage() {
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
-  const contactPhone = process.env.NEXT_PUBLIC_CONTACT_PHONE;
+﻿import { profile } from "@/lib/data";
+export const metadata = { title: "Contact your instructor" };
+export default function Contact() {
+  const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
   return (
-    <main>
-      <PageHero breadcrumb="Home / Contact" title="Get in touch">
-        Contact me about a course, workshop, student project, research activity, or invitation from your institution.
-      </PageHero>
-      <section className="section">
-        <div className="site-container grid items-start gap-6 lg:grid-cols-[0.75fr_1fr]">
-          <aside className="rounded-lg border border-line bg-white p-6 shadow-soft">
-            <p className="eyebrow">Contact details</p>
-            <h2 className="h2">Choose the most convenient way to reach me.</h2>
-            <ul className="mt-6 grid gap-4">
-              <li className="flex gap-3 text-slate-700"><Mail className="text-teal-deep" size={20} /> {contactEmail ? <a className="font-bold text-teal-deep" href={`mailto:${contactEmail}`}>{contactEmail}</a> : "Send a message using the form or LinkedIn"}</li>
-              {contactPhone ? <li className="flex gap-3 text-slate-700"><Phone className="text-teal-deep" size={20} /> <a className="font-bold text-teal-deep" href={`tel:${contactPhone}`}>{contactPhone}</a></li> : null}
-              <li className="flex gap-3 text-slate-700"><MapPin className="text-teal-deep" size={20} /> Kathmandu, Nepal</li>
-              <li className="flex gap-3 text-slate-700">
-                <Linkedin className="text-teal-deep" size={20} />
-                <span>
-                  LinkedIn:{" "}
-                  <a className="font-bold text-teal-deep hover:text-navy" href={profile.linkedinUrl} target="_blank" rel="noreferrer">
-                    er-arjun-neupane
-                    <ExternalLink className="ml-1 inline" size={14} />
-                  </a>
-                </span>
-              </li>
-            </ul>
-          </aside>
-          <ContactForm />
+    <main id="main-content" className="site-container py-12">
+      <section className="card max-w-2xl">
+        <p className="eyebrow">Instructor assistance</p>
+        <h1 className="h2">Get in touch</h1>
+        <p className="mt-5 text-muted">
+          For a new account, a password reset, or a change to your course
+          access, contact Er. Arjun Neupane through your established class
+          channel.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          {email && (
+            <a href={"mailto:" + email} className="btn btn-primary">
+              Email the instructor
+            </a>
+          )}
+          <a
+            className="btn btn-secondary"
+            href={profile.linkedinUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            LinkedIn ↗
+          </a>
+          <a
+            className="btn btn-secondary"
+            href={profile.githubUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub ↗
+          </a>
         </div>
+        <p className="mt-5 text-sm text-muted">
+          Never share your current password. Your instructor can issue a new
+          temporary password if needed.
+        </p>
       </section>
     </main>
   );

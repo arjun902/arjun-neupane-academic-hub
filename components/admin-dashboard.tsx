@@ -1,325 +1,1201 @@
 "use client";
-
-import { BarChart3, BellRing, Download, FileUp, Inbox, ListChecks, UploadCloud } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AuthGate } from "@/components/auth-gate";
-import { academicPrograms } from "@/lib/academics";
-import type { UserProfile, UserRole } from "@/lib/auth";
+import { adminAction } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-
-const staffRoles: UserRole[] = ["admin", "teacher"];
-const allowedResourceTypes = new Set([
-  "application/pdf",
-  "text/plain",
-  "application/zip",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-powerpoint",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-]);
-const programOptions = [["CSIT", "BSc CSIT"], ["BCA", "BCA"], ["BE", "BE Computer Engineering"]] as const;
-const semesterOptions = Array.from({ length: 8 }, (_, index) => {
-  const number = String(index + 1);
-  return [number, `Semester ${number}`] as const;
-});
-const resourceCategoryOptions = ["Notes", "Assignments", "Lab Reports", "Old Questions"].map((label) => [label, label] as const);
-
-type Tab = "overview" | "subjects" | "resources" | "notices" | "submissions" | "messages";
-type SubjectRow = { id: string; name: string; slug: string; program: string; semester: string | null; summary: string | null };
-type ResourceRow = { id: string; title: string; program: string; semester: string | null; material_type: string; file_path: string | null; published: boolean; updated_at: string };
-type AssignmentRow = { id: string; student_id: string; title: string; file_path: string; status: string; submitted_at: string; feedback: string | null };
-type ContactRow = { id: string; name: string; email: string; purpose: string; subject: string; message: string; status: string; created_at: string };
-
+import { fetchRows } from "@/lib/fetch-rows";
+import {
+  categories,
+  type Account,
+  type Course,
+  type Resource,
+  type Unit,
+} from "@/lib/portal";
+type Enrollment = {
+  student_id: string;
+  course_id: string;
+  expires_at: string | null;
+};
+const field = (f: FormData, n: string) => String(f.get(n) || "").trim();
+const date = (s: string) => (s ? new Date(s).toISOString() : null);
+const localDate = (s: string | null) =>
+  s
+    ? new Date(Date.parse(s) - new Date(s).getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16)
+    : "";
+const types: Record<string, string> = {
+  pdf: "application/pdf",
+  txt: "text/plain",
+  c: "text/plain",
+  h: "text/plain",
+  cpp: "text/plain",
+  py: "text/plain",
+  java: "text/plain",
+  zip: "application/zip",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+};
 export function SecureAdminDashboard() {
-  return <AuthGate roles={staffRoles}>{(profile) => <AdminPanel profile={profile} />}</AuthGate>;
+  return (
+    <AuthGate roles={["admin"]}>
+      <AdminPanel />
+    </AuthGate>
+  );
 }
-
-function AdminPanel({ profile }: { profile: UserProfile }) {
-  const [tab, setTab] = useState<Tab>("overview");
-  const [subjects, setSubjects] = useState<SubjectRow[]>([]);
-  const [resources, setResources] = useState<ResourceRow[]>([]);
-  const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
-  const [messages, setMessages] = useState<ContactRow[]>([]);
-  const [counts, setCounts] = useState({ resources: 0, subjects: 0, students: 0, assignments: 0, messages: 0 });
-  const [status, setStatus] = useState("");
-  const [busy, setBusy] = useState(false);
-
+function AdminPanel() {
+  const [tab, setTab] = useState("Overview"),
+    [status, setStatus] = useState(""),
+    [busy, setBusy] = useState(false);
+  const [accounts, setAccounts] = useState<Account[]>([]),
+    [courses, setCourses] = useState<Course[]>([]),
+    [units, setUnits] = useState<Unit[]>([]),
+    [resources, setResources] = useState<Resource[]>([]),
+    [enrollments, setEnrollments] = useState<Enrollment[]>([]),
+    [audit, setAudit] = useState<
+      { id: number; action: string; entity: string; created_at: string }[]
+    >([]),
+    [announcements, setAnnouncements] = useState<
+      { id: string; title: string; published: boolean }[]
+    >([]);
+  const [credential, setCredential] = useState<{
+      email: string;
+      password: string;
+    } | null>(null),
+    [student, setStudent] = useState<Account | null>(null),
+    [editCourse, setEditCourse] = useState<Course | null>(null),
+    [editResource, setEditResource] = useState<Resource | null>(null),
+    [file, setFile] = useState<File | null>(null),
+    [uploadCourse, setUploadCourse] = useState(""),
+    [progress, setProgress] = useState(0);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const newResourceId = useRef<string | null>(null);
   const refresh = useCallback(async () => {
-    if (!supabase) return;
-    const [resourceResult, subjectResult, studentResult, assignmentResult, messageResult] = await Promise.all([
-      supabase.from("materials").select("id, title, program, semester, material_type, file_path, published, updated_at").order("updated_at", { ascending: false }).limit(30),
-      supabase.from("subjects").select("id, name, slug, program, semester, summary").order("name"),
-      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
-      supabase.from("assignments").select("id, student_id, title, file_path, status, submitted_at, feedback").order("submitted_at", { ascending: false }).limit(30),
-      profile.role === "admin"
-        ? supabase.from("contact_messages").select("id, name, email, purpose, subject, message, status, created_at").order("created_at", { ascending: false }).limit(30)
-        : Promise.resolve({ data: [], error: null, count: 0 })
-    ]);
-
-    if (resourceResult.error || subjectResult.error || studentResult.error || assignmentResult.error || messageResult.error) {
-      setStatus("Some dashboard information could not be loaded. Please refresh the page or contact the administrator.");
-      return;
+    if (!supabase) return "Portal configuration is unavailable.";
+    const r = await Promise.all([
+      fetchRows((start, end) =>
+        supabase!
+          .from("hub_accounts")
+          .select("*")
+          .order("full_name")
+          .order("id")
+          .range(start, end),
+      ),
+      fetchRows((start, end) =>
+        supabase!
+          .from("hub_courses")
+          .select("*")
+          .order("display_order")
+          .order("id")
+          .range(start, end),
+      ),
+      fetchRows((start, end) =>
+        supabase!
+          .from("hub_units")
+          .select("*")
+          .order("display_order")
+          .order("id")
+          .range(start, end),
+      ),
+      fetchRows((start, end) =>
+        supabase!
+          .from("hub_resources")
+          .select("*")
+          .order("updated_at", { ascending: false })
+          .order("id")
+          .range(start, end),
+      ),
+      fetchRows((start, end) =>
+        supabase!
+          .from("hub_enrollments")
+          .select("*")
+          .order("student_id")
+          .order("course_id")
+          .range(start, end),
+      ),
+      supabase
+        .from("hub_audit")
+        .select("id,action,entity,created_at")
+        .order("created_at", { ascending: false })
+        .limit(100),
+      fetchRows((start, end) =>
+        supabase!
+          .from("hub_announcements")
+          .select("id,title,published")
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(start, end),
+      ),
+    ]).catch(() => null);
+    if (!r || r.some((x) => x.error)) {
+      setAccounts([]);
+      setCourses([]);
+      setUnits([]);
+      setResources([]);
+      setEnrollments([]);
+      setAudit([]);
+      setAnnouncements([]);
+      return "Dashboard could not load. Check your connection and administrator access, then refresh.";
     }
-    setResources((resourceResult.data || []) as ResourceRow[]);
-    setSubjects((subjectResult.data || []) as SubjectRow[]);
-    setAssignments((assignmentResult.data || []) as AssignmentRow[]);
-    setMessages((messageResult.data || []) as ContactRow[]);
-    setCounts({
-      resources: resourceResult.data?.length || 0,
-      subjects: subjectResult.data?.length || 0,
-      students: studentResult.count || 0,
-      assignments: assignmentResult.data?.filter((item) => item.status !== "reviewed").length || 0,
-      messages: messageResult.data?.filter((item) => item.status === "new").length || 0
+    setAccounts(r[0].data || []);
+    setCourses(r[1].data || []);
+    setUnits(r[2].data || []);
+    setResources(r[3].data || []);
+    setEnrollments(r[4].data || []);
+    setAudit(r[5].data || []);
+    setAnnouncements(r[6].data || []);
+    return null;
+  }, []);
+  useEffect(() => {
+    void refresh().then((error) => {
+      if (error) setStatus(error);
     });
-  }, [profile.role]);
-
-  useEffect(() => { void refresh(); }, [refresh]);
-
-  async function uploadResource(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!supabase) return;
-    const form = event.currentTarget;
-    const values = new FormData(form);
-    const file = values.get("file");
-    if (!(file instanceof File) || !file.size) return setStatus("Choose a course resource file first.");
-    if (file.size > 20 * 1024 * 1024) return setStatus("Course resource files must be 20 MB or smaller.");
-    if (!allowedResourceTypes.has(file.type)) return setStatus("Unsupported file type. Use PDF, Office, text, or ZIP files.");
-
+  }, [refresh]);
+  async function run(task: () => Promise<void | string>) {
     setBusy(true);
     setStatus("");
-    const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g, "-").replace(/-+/g, "-");
-    const filePath = `resources/${crypto.randomUUID()}-${safeName}`;
-    const upload = await supabase.storage.from("materials").upload(filePath, file, { contentType: file.type, upsert: false });
-    if (upload.error) {
-      setStatus("The file could not be uploaded. Please check it and try again.");
+    try {
+      const warning = await task();
+      const refreshError = await refresh();
+      setStatus(
+        [warning || "Saved successfully.", refreshError]
+          .filter(Boolean)
+          .join(" "),
+      );
+    } catch (e) {
+      setStatus((e as Error).message || "Could not save. Please retry.");
+    } finally {
       setBusy(false);
-      return;
     }
-
-    const insert = await supabase.from("materials").insert({
-      title: String(values.get("title") || "").trim(),
-      subject_id: String(values.get("subject_id") || "") || null,
-      program: String(values.get("program") || "").trim(),
-      semester: String(values.get("semester") || "").trim() || null,
-      material_type: String(values.get("material_type") || "").trim(),
-      file_path: filePath,
-      published: values.get("published") === "on"
+  }
+  async function save(table: string, value: Record<string, unknown>) {
+    const r = await supabase!.from(table).upsert(value);
+    if (r.error) throw Error(r.error.message);
+  }
+  async function resourceSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const v = new FormData(form);
+    await run(async () => {
+      let path = editResource?.file_path || null,
+        filename = editResource?.filename || null,
+        mime = editResource?.mime || null,
+        size = editResource?.size || null;
+      let uploaded: string | null = null;
+      const external = field(v, "external_url") || null;
+      if (external && !/^https:\/\//.test(external))
+        throw Error("External links must start with https://");
+      if (file && external) throw Error("Choose a file OR an external link.");
+      if (file) {
+        const ext = file.name.split(".").pop()?.toLowerCase() || "";
+        mime = types[ext];
+        if (!mime || file.size < 1 || file.size > 20971520)
+          throw Error("Use a supported file of 20 MB or less.");
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+        path = crypto.randomUUID() + "/" + safe;
+        filename = file.name;
+        size = file.size;
+        const { data } = await supabase!.auth.getSession();
+        if (!data.session) throw Error("Sign in again.");
+        setProgress(0);
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open(
+            "POST",
+            process.env.NEXT_PUBLIC_SUPABASE_URL +
+              "/storage/v1/object/hub-materials/" +
+              path,
+          );
+          xhr.setRequestHeader(
+            "Authorization",
+            "Bearer " + data.session!.access_token,
+          );
+          xhr.setRequestHeader(
+            "apikey",
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          );
+          xhr.setRequestHeader("Content-Type", mime!);
+          xhr.upload.onprogress = (ev) => {
+            if (ev.lengthComputable)
+              setProgress(Math.round((ev.loaded / ev.total) * 100));
+          };
+          xhr.onload = () =>
+            xhr.status >= 200 && xhr.status < 300
+              ? resolve()
+              : reject(
+                  Error(
+                    "Upload failed. Your file selection is retained; retry.",
+                  ),
+                );
+          xhr.onerror = () =>
+            reject(Error("Connection interrupted. Retry the upload."));
+          xhr.timeout = 120000;
+          xhr.ontimeout = () => reject(Error("Upload timed out. Retry."));
+          xhr.send(file);
+        });
+        uploaded = path;
+      }
+      if (!path && !external)
+        throw Error("Select a file or provide an external reference.");
+      const record = {
+        id: editResource?.id || (newResourceId.current ??= crypto.randomUUID()),
+        course_id: field(v, "course_id"),
+        unit_id: field(v, "unit_id") || null,
+        title: field(v, "title"),
+        description: field(v, "description"),
+        category: field(v, "category"),
+        file_path: external ? null : path,
+        filename: external ? null : filename,
+        mime: external ? null : mime,
+        size: external ? null : size,
+        external_url: external,
+        tags: field(v, "tags")
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+        status: field(v, "status"),
+        release_at: date(field(v, "release_at")),
+        display_order: Number(field(v, "display_order")),
+        preview_enabled: v.get("preview_enabled") === "on",
+        download_enabled: v.get("download_enabled") === "on",
+        updated_at: new Date().toISOString(),
+      };
+      let warning = "";
+      try {
+        await save("hub_resources", record);
+      } catch (e) {
+        if (uploaded) {
+          // A lost response does not prove the transaction failed. Never delete
+          // the uploaded object until its commit outcome can be established.
+          const confirmation = await supabase!
+            .from("hub_resources")
+            .select("file_path,updated_at")
+            .eq("id", record.id)
+            .maybeSingle();
+          if (
+            confirmation.error ||
+            confirmation.data?.file_path !== uploaded ||
+            (confirmation.data?.updated_at &&
+              Date.parse(confirmation.data.updated_at) !==
+                Date.parse(record.updated_at))
+          ) {
+            throw Error(
+              "The save could not be confirmed. Your uploaded file has been retained privately. Refresh the resource library before retrying; no existing file was deleted.",
+            );
+          }
+          warning =
+            "Saved successfully; the interrupted response was verified against the resource library.";
+        } else {
+          throw e;
+        }
+      }
+      // Old files remain private and inaccessible after replacement; remove only after metadata succeeds.
+      if (
+        editResource?.file_path &&
+        editResource.file_path !== record.file_path
+      ) {
+        const cleanup = await supabase!.storage
+          .from("hub-materials")
+          .remove([editResource.file_path]);
+        if (cleanup.error)
+          warning =
+            "Saved successfully. The old private file could not be removed; ask the site administrator to clean it up in Storage.";
+      }
+      setFile(null);
+      if (fileInput.current) fileInput.current.value = "";
+      newResourceId.current = null;
+      setEditResource(null);
+      setUploadCourse("");
+      setProgress(0);
+      form.reset();
+      return warning;
     });
-    if (insert.error) {
-      await supabase.storage.from("materials").remove([filePath]);
-      setStatus("The resource details could not be saved, so the uploaded file was removed. Please check the form and try again.");
-      setBusy(false);
-      return;
-    }
-    form.reset();
-    setStatus("Course resource uploaded successfully.");
-    setBusy(false);
-    await refresh();
   }
-
-  async function createSubject(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!supabase) return;
-    const form = event.currentTarget;
-    const values = new FormData(form);
-    const name = String(values.get("name") || "").trim();
-    const program = String(values.get("program") || "").trim();
-    const semester = String(values.get("semester") || "").trim();
-    const baseSlug = name.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const slug = `${baseSlug}-${program.toLowerCase()}-s${semester}`;
-    const result = await supabase.from("subjects").insert({
-      name,
-      slug,
-      program,
-      semester,
-      summary: String(values.get("summary") || "").trim() || null
-    });
-    if (result.error) return setStatus("Subject could not be created. Check whether the name or slug already exists.");
-    form.reset();
-    setStatus("Subject created successfully.");
-    await refresh();
-  }
-
-  async function toggleResource(item: ResourceRow) {
-    if (!supabase) return;
-    const result = await supabase.from("materials").update({ published: !item.published, updated_at: new Date().toISOString() }).eq("id", item.id);
-    setStatus(result.error ? "Course resource status could not be updated." : `Course resource ${item.published ? "unpublished" : "published"}.`);
-    await refresh();
-  }
-
-  async function publishNotice(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!supabase) return;
-    const form = event.currentTarget;
-    const values = new FormData(form);
-    setBusy(true);
-    const result = await supabase.from("notices").insert({
-      title: String(values.get("title") || "").trim(),
-      body: String(values.get("body") || "").trim(),
-      notice_type: String(values.get("notice_type") || "Academic update"),
-      urgent: values.get("urgent") === "on",
-      published: true,
-      published_at: new Date().toISOString()
-    });
-    setBusy(false);
-    if (result.error) return setStatus("Notice could not be published. Check the required fields.");
-    form.reset();
-    setStatus("Notice published successfully.");
-  }
-
-  async function reviewAssignment(id: string) {
-    if (!supabase) return;
-    const feedback = window.prompt("Feedback for the student (optional):", "Reviewed. Please see the notes from your teacher.");
-    if (feedback === null) return;
-    const result = await supabase.from("assignments").update({ status: "reviewed", feedback: feedback.slice(0, 5000), updated_at: new Date().toISOString() }).eq("id", id);
-    setStatus(result.error ? "Submission could not be updated." : "Submission marked as reviewed.");
-    await refresh();
-  }
-
-  async function downloadAssignment(item: AssignmentRow) {
-    if (!supabase) return;
-    const result = await supabase.storage.from("assignments").createSignedUrl(item.file_path, 60);
-    if (result.error || !result.data.signedUrl) return setStatus("The private submission file could not be opened.");
-    window.location.assign(result.data.signedUrl);
-  }
-
-  async function markMessageRead(id: string) {
-    if (!supabase) return;
-    const result = await supabase.from("contact_messages").update({ status: "read" }).eq("id", id);
-    setStatus(result.error ? "Message status could not be updated." : "Message marked as read.");
-    await refresh();
-  }
-
   return (
-    <main>
-      <section className="page-hero py-12 text-white">
-        <div className="site-container"><p className="eyebrow text-white/75">Teaching and administration</p><h1 className="h1 text-white">Staff dashboard</h1><p className="mt-4 max-w-2xl text-white/85">Manage the subject catalog, course files, notices, student submissions and enquiries.</p></div>
-      </section>
-      <section className="section">
-        <div className="site-container grid gap-6 lg:grid-cols-[250px_1fr]">
-          <aside className="self-start rounded-lg bg-navy p-3 lg:sticky lg:top-24">
-            {(["overview", "subjects", "resources", "notices", "submissions", ...(profile.role === "admin" ? ["messages"] : [])] as Tab[]).map((item) => (
-              <button key={item} type="button" onClick={() => setTab(item)} className={`block w-full rounded-lg px-3 py-3 text-left text-sm font-bold capitalize ${tab === item ? "bg-white/15 text-white" : "text-white/75 hover:bg-white/10 hover:text-white"}`}>{item}</button>
-            ))}
-          </aside>
-          <div className="min-w-0">
-            {status ? <p role="status" className="mb-5 rounded-lg border border-teal/20 bg-teal/10 p-4 text-sm font-bold text-teal-deep">{status}</p> : null}
-            {tab === "overview" ? <Overview counts={counts} /> : null}
-            {tab === "subjects" ? <SubjectPanel subjects={subjects} onSubmit={createSubject} /> : null}
-            {tab === "resources" ? <ResourcePanel resources={resources} subjects={subjects} busy={busy} onUpload={uploadResource} onToggle={toggleResource} /> : null}
-            {tab === "notices" ? <NoticePanel busy={busy} onSubmit={publishNotice} /> : null}
-            {tab === "submissions" ? <SubmissionPanel assignments={assignments} onDownload={downloadAssignment} onReview={reviewAssignment} /> : null}
-            {tab === "messages" ? <MessagePanel messages={messages} onRead={markMessageRead} /> : null}
-          </div>
+    <main id="main-content" className="site-container py-9">
+      <p className="eyebrow">Instructor workspace</p>
+      <h1 className="h2">Academic administration</h1>
+      <p className="mt-2 text-muted">
+        Manage access, organise resources, and publish when you are ready.
+      </p>
+      <div className="mt-7 grid gap-6 lg:grid-cols-[210px_1fr]">
+        <nav
+          aria-label="Administration"
+          className="flex flex-wrap gap-2 self-start rounded-lg bg-navy p-3 lg:grid"
+        >
+          {[
+            "Overview",
+            "Students",
+            "Courses & units",
+            "Materials",
+            "Announcements",
+            "Audit trail",
+          ].map((t) => (
+            <button
+              key={t}
+              className={
+                "rounded-lg px-3 py-3 text-left text-sm font-bold " +
+                (t === tab ? "bg-white text-navy" : "text-white")
+              }
+              onClick={() => {
+                setTab(t);
+                setCredential(null);
+              }}
+            >
+              {t}
+            </button>
+          ))}
+        </nav>
+        <div className="min-w-0">
+          <p role="status" className="mb-4 whitespace-pre-wrap text-sm">
+            {status}
+          </p>
+          <button
+            type="button"
+            className="btn btn-secondary mb-4"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                setStatus((await refresh()) || "Dashboard refreshed.");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Refresh dashboard
+          </button>
+          {tab === "Overview" && (
+            <>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {[
+                  [
+                    accounts.filter((a) => a.role === "student").length,
+                    "Students",
+                  ],
+                  [enrollments.length, "Enrollments"],
+                  [
+                    resources.filter(
+                      (r) =>
+                        r.status === "published" &&
+                        (!r.release_at ||
+                          Date.parse(r.release_at) <= Date.now()),
+                    ).length,
+                    "Published resources",
+                  ],
+                ].map(([n, l]) => (
+                  <article key={l} className="card">
+                    <strong className="block text-3xl text-navy">{n}</strong>
+                    <span>{l}</span>
+                  </article>
+                ))}
+              </div>
+              <section className="card mt-5">
+                <h2 className="text-xl font-bold">Start with the essentials</h2>
+                <p className="mt-2 text-muted">
+                  Create a student, assign their courses, then upload syllabi
+                  and teaching materials as drafts. Publish resources when they
+                  are ready for your class.
+                </p>
+                <button
+                  className="btn btn-primary mt-4"
+                  onClick={() => setTab("Materials")}
+                >
+                  Upload material
+                </button>
+              </section>
+            </>
+          )}
+          {tab === "Students" && (
+            <>
+              <h2 className="mb-4 text-2xl font-bold">
+                {student ? "Edit student" : "Create student account"}
+              </h2>
+              <form
+                key={student?.id || "new"}
+                className="card grid gap-4 sm:grid-cols-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const f = new FormData(e.currentTarget);
+                  void run(async () => {
+                    const result = await adminAction({
+                      action: student ? "update-student" : "create-student",
+                      student_id: student?.id,
+                      full_name: field(f, "full_name"),
+                      email: field(f, "email"),
+                      status: field(f, "status") || "active",
+                      expires_at: date(field(f, "expires_at")),
+                    });
+                    if (result.temporary_password)
+                      setCredential({
+                        email: field(f, "email"),
+                        password: result.temporary_password,
+                      });
+                    setStudent(null);
+                  });
+                }}
+              >
+                <Field
+                  label="Full name"
+                  name="full_name"
+                  required
+                  minLength={2}
+                  maxLength={120}
+                  defaultValue={student?.full_name}
+                />
+                <Field
+                  label="Email"
+                  name="email"
+                  type="email"
+                  required
+                  disabled={!!student}
+                  defaultValue={student?.email}
+                />
+                <Field
+                  label="Account expiry (optional, local time)"
+                  name="expires_at"
+                  type="datetime-local"
+                  defaultValue={localDate(student?.expires_at || null)}
+                />
+                {student && (
+                  <label>
+                    Status
+                    <select
+                      name="status"
+                      className="form-input"
+                      defaultValue={student.status}
+                    >
+                      <option value="active">Active</option>
+                      <option value="suspended">Suspended</option>
+                    </select>
+                  </label>
+                )}
+                <div className="flex gap-2">
+                  <button disabled={busy} className="btn btn-primary">
+                    {student ? "Save student" : "Create & generate password"}
+                  </button>
+                  {student && (
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setStudent(null)}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+              {credential && (
+                <section
+                  className="my-5 rounded-lg border-2 border-teal bg-white p-5"
+                  aria-label="One-time credential"
+                >
+                  <h3 className="font-bold">
+                    Provide this credential manually
+                  </h3>
+                  <p>{credential.email}</p>
+                  <code className="my-3 block break-all rounded bg-slate-100 p-3">
+                    {credential.password}
+                  </code>
+                  <p className="text-sm">
+                    Shown only in this session. No email is sent. The student
+                    must replace it on first sign-in.
+                  </p>
+                  <button
+                    className="btn btn-secondary mt-3"
+                    onClick={() => setCredential(null)}
+                  >
+                    I have saved it · dismiss
+                  </button>
+                </section>
+              )}
+              <h2 className="mb-3 mt-8 text-xl font-bold">
+                Students & course access
+              </h2>
+              {accounts
+                .filter((a) => a.role === "student")
+                .map((a) => (
+                  <article className="card mb-4" key={a.id}>
+                    <h3 className="font-bold">
+                      {a.full_name} <span className="pill">{a.status}</span>
+                    </h3>
+                    <p className="break-all text-sm">{a.email}</p>
+                    <p className="text-xs text-muted">
+                      Account expiry:{" "}
+                      {a.expires_at
+                        ? new Date(a.expires_at).toLocaleString()
+                        : "No expiry"}{" "}
+                      ·{" "}
+                      {a.must_change_password
+                        ? "Password change required"
+                        : "Password set"}
+                    </p>
+                    <div className="my-3 flex flex-wrap gap-2">
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => setStudent(a)}
+                      >
+                        Edit account
+                      </button>
+                      <button
+                        className="btn btn-secondary"
+                        disabled={busy}
+                        onClick={() => {
+                          if (
+                            confirm(
+                              "Reset credentials for " +
+                                a.full_name +
+                                "? Their old sessions will lose access.",
+                            )
+                          )
+                            void run(async () => {
+                              const r = await adminAction({
+                                action: "reset-password",
+                                student_id: a.id,
+                              });
+                              setCredential({
+                                email: a.email,
+                                password: r.temporary_password,
+                              });
+                            });
+                        }}
+                      >
+                        Reset credentials
+                      </button>
+                    </div>
+                    {enrollments
+                      .filter((e) => e.student_id === a.id)
+                      .map((e) => (
+                        <div
+                          className="my-2 flex flex-wrap items-center gap-2 border-t border-line pt-2 text-sm"
+                          key={e.course_id}
+                        >
+                          <strong>
+                            {courses.find((c) => c.id === e.course_id)?.name}
+                          </strong>
+                          <span>
+                            {e.expires_at
+                              ? "Until " +
+                                new Date(e.expires_at).toLocaleString()
+                              : "No expiry"}
+                          </span>
+                          <button
+                            className="text-red-700 underline"
+                            disabled={busy}
+                            onClick={() => {
+                              if (confirm("Revoke this course?"))
+                                void run(async () => {
+                                  await adminAction({
+                                    action: "revoke",
+                                    student_id: a.id,
+                                    course_id: e.course_id,
+                                  });
+                                });
+                            }}
+                          >
+                            Revoke
+                          </button>
+                        </div>
+                      ))}
+                    <form
+                      className="mt-4 grid gap-3 sm:grid-cols-3"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const f = new FormData(e.currentTarget);
+                        void run(async () => {
+                          await adminAction({
+                            action: "enroll",
+                            student_id: a.id,
+                            course_id: field(f, "course_id"),
+                            expires_at: date(field(f, "expires_at")),
+                          });
+                        });
+                      }}
+                    >
+                      <label className="text-sm">
+                        Assign / extend course
+                        <select
+                          className="form-input"
+                          required
+                          name="course_id"
+                        >
+                          {courses.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <Field
+                        label="Enrollment expiry (optional)"
+                        type="datetime-local"
+                        name="expires_at"
+                      />
+                      <button
+                        className="btn btn-primary self-end"
+                        disabled={busy}
+                      >
+                        Save access
+                      </button>
+                    </form>
+                  </article>
+                ))}
+              {!accounts.some((a) => a.role === "student") && (
+                <p>No students yet. Create your first account above.</p>
+              )}
+            </>
+          )}
+          {tab === "Courses & units" && (
+            <>
+              <h2 className="mb-4 text-2xl font-bold">
+                {editCourse ? "Edit course" : "Add a future course"}
+              </h2>
+              <form
+                key={editCourse?.id || "course"}
+                className="card grid gap-4 sm:grid-cols-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const f = new FormData(e.currentTarget);
+                  void run(async () => {
+                    await save("hub_courses", {
+                      id: editCourse?.id || field(f, "id"),
+                      name: field(f, "name"),
+                      program: field(f, "program"),
+                      summary: field(f, "summary"),
+                      visible: f.get("visible") === "on",
+                      code: field(f, "code") || null,
+                      semester: field(f, "semester") || null,
+                      credits: field(f, "credits") || null,
+                      syllabus_version: field(f, "syllabus_version") || null,
+                    });
+                    setEditCourse(null);
+                  });
+                }}
+              >
+                <Field
+                  label="Course name"
+                  name="name"
+                  required
+                  defaultValue={editCourse?.name}
+                />
+                <Field
+                  label="Stable ID (lowercase and hyphens)"
+                  name="id"
+                  pattern="[a-z0-9-]+"
+                  required
+                  disabled={!!editCourse}
+                  defaultValue={editCourse?.id}
+                />
+                <Field
+                  label="Programme"
+                  name="program"
+                  required
+                  defaultValue={editCourse?.program}
+                />
+                <Field
+                  label="Short public description"
+                  name="summary"
+                  required
+                  defaultValue={editCourse?.summary}
+                />
+                {(
+                  ["code", "semester", "credits", "syllabus_version"] as const
+                ).map((n) => (
+                  <Field
+                    key={n}
+                    label={n.replace("_", " ") + " (verified only)"}
+                    name={n}
+                    defaultValue={editCourse?.[n] || ""}
+                  />
+                ))}
+                <label>
+                  <input
+                    type="checkbox"
+                    name="visible"
+                    defaultChecked={editCourse?.visible}
+                  />{" "}
+                  Show in public catalogue
+                </label>
+                <button disabled={busy} className="btn btn-primary">
+                  Save course
+                </button>
+                {editCourse && (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setEditCourse(null)}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </form>
+              <p className="my-4 text-sm text-muted">
+                Leave official metadata blank until you verify the current TU
+                syllabus.
+              </p>
+              {courses.map((c) => (
+                <article className="card mb-3" key={c.id}>
+                  <div className="flex flex-wrap justify-between gap-3">
+                    <h3 className="font-bold">
+                      {c.name} · {c.program}
+                    </h3>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => setEditCourse(c)}
+                    >
+                      Edit course
+                    </button>
+                  </div>
+                  {units
+                    .filter((u) => u.course_id === c.id)
+                    .map((u) => (
+                      <form
+                        key={u.id}
+                        className="mt-3 flex flex-wrap gap-2"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const f = new FormData(e.currentTarget);
+                          void run(() =>
+                            save("hub_units", {
+                              ...u,
+                              title: field(f, "title"),
+                              display_order: Number(field(f, "order")),
+                            }),
+                          );
+                        }}
+                      >
+                        <Field
+                          label="Unit title"
+                          name="title"
+                          defaultValue={u.title}
+                          required
+                        />
+                        <Field
+                          label="Order"
+                          name="order"
+                          type="number"
+                          defaultValue={u.display_order}
+                        />
+                        <button
+                          className="btn btn-secondary self-end"
+                          disabled={busy}
+                        >
+                          Update unit
+                        </button>
+                      </form>
+                    ))}
+                  <form
+                    className="mt-3 flex flex-wrap gap-2"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const form = e.currentTarget;
+                      const f = new FormData(form);
+                      void run(async () => {
+                        await save("hub_units", {
+                          course_id: c.id,
+                          title: field(f, "title"),
+                          display_order: Number(field(f, "order")),
+                        });
+                        form.reset();
+                      });
+                    }}
+                  >
+                    <Field label="New unit title" name="title" required />
+                    <Field
+                      label="Order"
+                      name="order"
+                      type="number"
+                      defaultValue="0"
+                    />
+                    <button
+                      disabled={busy}
+                      className="btn btn-primary self-end"
+                    >
+                      Add unit
+                    </button>
+                  </form>
+                </article>
+              ))}
+            </>
+          )}
+          {tab === "Materials" && (
+            <>
+              <h2 className="mb-4 text-2xl font-bold">
+                {editResource
+                  ? "Edit / replace material"
+                  : "Upload teaching material"}
+              </h2>
+              <form
+                key={editResource?.id || "upload"}
+                className="card grid gap-4 sm:grid-cols-2"
+                onSubmit={resourceSubmit}
+              >
+                <Field
+                  label="Title"
+                  name="title"
+                  required
+                  maxLength={180}
+                  defaultValue={editResource?.title}
+                />
+                <label>
+                  Course
+                  <select
+                    required
+                    name="course_id"
+                    className="form-input"
+                    value={uploadCourse}
+                    onChange={(e) => setUploadCourse(e.target.value)}
+                  >
+                    <option value="">Choose course</option>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Unit
+                  <select
+                    name="unit_id"
+                    className="form-input"
+                    defaultValue={editResource?.unit_id || ""}
+                  >
+                    <option value="">Course-wide</option>
+                    {units
+                      .filter((u) => u.course_id === uploadCourse)
+                      .map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.title}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label>
+                  Category
+                  <select
+                    name="category"
+                    className="form-input"
+                    defaultValue={editResource?.category}
+                  >
+                    {categories.map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="sm:col-span-2">
+                  Description
+                  <textarea
+                    name="description"
+                    className="form-input"
+                    maxLength={5000}
+                    defaultValue={editResource?.description}
+                  />
+                </label>
+                <div
+                  className="rounded-lg border-2 border-dashed border-line p-5 sm:col-span-2"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setFile(e.dataTransfer.files[0] || null);
+                  }}
+                >
+                  <label className="grid gap-2 font-bold">
+                    Drop a file here or choose a file
+                    <input
+                      type="file"
+                      accept=".pdf,.txt,.c,.h,.cpp,.py,.java,.zip,.png,.jpg,.jpeg,.docx,.pptx"
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    />
+                  </label>
+                  <p className="mt-2 break-all text-sm text-muted">
+                    {file?.name ||
+                      editResource?.filename ||
+                      "PDF, code/text, ZIP, PNG/JPEG, DOCX or PPTX · Maximum 20 MB"}
+                  </p>
+                  {file && (
+                    <button
+                      type="button"
+                      className="text-sm underline"
+                      onClick={() => setFile(null)}
+                    >
+                      Clear selected file
+                    </button>
+                  )}
+                  {busy && file && (
+                    <>
+                      <progress
+                        aria-label="Upload progress"
+                        className="mt-3 w-full"
+                        max={100}
+                        value={progress}
+                      />
+                      <p>{progress}% uploaded · Saving metadata follows</p>
+                    </>
+                  )}
+                </div>
+                <Field
+                  label="OR external reference (https://)"
+                  name="external_url"
+                  type="url"
+                  defaultValue={editResource?.external_url || ""}
+                />
+                <Field
+                  label="Tags (comma-separated)"
+                  name="tags"
+                  defaultValue={editResource?.tags.join(", ")}
+                />
+                <label>
+                  Publication status
+                  <select
+                    className="form-input"
+                    name="status"
+                    defaultValue={editResource?.status || "draft"}
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </label>
+                <Field
+                  label="Release at (optional, local time)"
+                  type="datetime-local"
+                  name="release_at"
+                  defaultValue={localDate(editResource?.release_at || null)}
+                />
+                <Field
+                  label="Display order"
+                  type="number"
+                  name="display_order"
+                  defaultValue={editResource?.display_order || 0}
+                />
+                <div className="grid">
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="preview_enabled"
+                      defaultChecked={editResource?.preview_enabled ?? true}
+                    />{" "}
+                    Enable preview
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="download_enabled"
+                      defaultChecked={editResource?.download_enabled ?? true}
+                    />{" "}
+                    Show download action
+                  </label>
+                </div>
+                <p className="text-sm text-muted sm:col-span-2">
+                  Previewed files can still be saved or copied. A future release
+                  time also protects solutions until that time.
+                </p>
+                <button disabled={busy} className="btn btn-primary">
+                  {busy
+                    ? "Saving…"
+                    : editResource
+                      ? "Save material"
+                      : "Upload & save material"}
+                </button>
+                {editResource && (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setEditResource(null);
+                      setFile(null);
+                      setUploadCourse("");
+                    }}
+                  >
+                    Cancel edit
+                  </button>
+                )}
+              </form>
+              <h2 className="mb-3 mt-8 text-xl font-bold">Resource library</h2>
+              {!resources.length && (
+                <p>
+                  No materials uploaded yet. Start with a verified syllabus and
+                  your own lecture notes.
+                </p>
+              )}
+              {resources.map((r) => (
+                <article className="card mb-3" key={r.id}>
+                  <h3 className="font-bold">{r.title}</h3>
+                  <p className="text-sm text-muted">
+                    {courses.find((c) => c.id === r.course_id)?.name} ·{" "}
+                    {r.category} · {r.status}
+                    {r.release_at
+                      ? " · Release " + new Date(r.release_at).toLocaleString()
+                      : ""}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setEditResource(r);
+                        setUploadCourse(r.course_id);
+                        setFile(null);
+                        window.scrollTo({ top: 0 });
+                      }}
+                    >
+                      Edit / replace
+                    </button>
+                    <button
+                      disabled={busy}
+                      className="btn btn-secondary"
+                      onClick={() =>
+                        void run(() =>
+                          save("hub_resources", {
+                            ...r,
+                            status:
+                              r.status === "published" ? "draft" : "published",
+                            updated_at: new Date().toISOString(),
+                          }),
+                        )
+                      }
+                    >
+                      {r.status === "published" ? "Unpublish" : "Publish"}
+                    </button>
+                    <button
+                      disabled={busy}
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        if (
+                          confirm(
+                            "Archive this material? Students will lose access.",
+                          )
+                        )
+                          void run(() =>
+                            save("hub_resources", {
+                              ...r,
+                              status: "archived",
+                              updated_at: new Date().toISOString(),
+                            }),
+                          );
+                      }}
+                    >
+                      Archive
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </>
+          )}
+          {tab === "Announcements" && (
+            <>
+              <h2 className="mb-4 text-2xl font-bold">Create announcement</h2>
+              <form
+                className="card grid gap-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget;
+                  const f = new FormData(form);
+                  void run(async () => {
+                    await save("hub_announcements", {
+                      title: field(f, "title"),
+                      body: field(f, "body"),
+                      course_id: field(f, "course_id") || null,
+                      is_public: f.get("is_public") === "on",
+                      published: f.get("published") === "on",
+                    });
+                    form.reset();
+                  });
+                }}
+              >
+                <Field label="Title" name="title" required maxLength={180} />
+                <label>
+                  Message
+                  <textarea
+                    name="body"
+                    required
+                    maxLength={5000}
+                    className="form-input"
+                  />
+                </label>
+                <label>
+                  Course
+                  <select name="course_id" className="form-input">
+                    <option value="">Public announcement only</option>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <input name="is_public" type="checkbox" /> Explicitly make
+                  this announcement public
+                </label>
+                <label>
+                  <input name="published" type="checkbox" /> Publish now
+                </label>
+                <button disabled={busy} className="btn btn-primary">
+                  Save announcement
+                </button>
+              </form>
+              {announcements.map((a) => (
+                <article className="card mt-3" key={a.id}>
+                  <h3>{a.title}</h3>
+                  <button
+                    disabled={busy}
+                    className="btn btn-secondary mt-2"
+                    onClick={() =>
+                      void run(async () => {
+                        const r = await supabase!
+                          .from("hub_announcements")
+                          .update({ published: !a.published })
+                          .eq("id", a.id);
+                        if (r.error) throw Error(r.error.message);
+                      })
+                    }
+                  >
+                    {a.published ? "Unpublish" : "Publish"}
+                  </button>
+                </article>
+              ))}
+            </>
+          )}
+          {tab === "Audit trail" && (
+            <>
+              <h2 className="mb-4 text-2xl font-bold">
+                Recent administrative activity
+              </h2>
+              <p className="mb-4 text-sm text-muted">
+                Latest 100 events. Credentials and file URLs are never recorded
+                here.
+              </p>
+              {audit.map((a) => (
+                <article
+                  className="border-b border-line py-3 text-sm"
+                  key={a.id}
+                >
+                  <strong>{a.action}</strong> · {a.entity}
+                  <span className="block text-muted">
+                    {new Date(a.created_at).toLocaleString()}
+                  </span>
+                </article>
+              ))}
+              {!audit.length && <p>No events recorded yet.</p>}
+            </>
+          )}
         </div>
-      </section>
+      </div>
     </main>
   );
 }
-
-function Overview({ counts }: { counts: { resources: number; subjects: number; students: number; assignments: number; messages: number } }) {
-  const metrics = [
-    [counts.resources, "Course resources", BarChart3],
-    [counts.subjects, "Catalog subjects", ListChecks],
-    [counts.students, "Registered students", ListChecks],
-    [counts.assignments, "Pending submissions", FileUp],
-    [counts.messages, "New messages", Inbox]
-  ] as const;
-  return <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">{metrics.map(([value, label, Icon]) => <article className="card" key={label}><Icon className="mb-3 text-teal-deep" size={22} /><strong className="block text-3xl text-navy">{value}</strong><span className="text-sm text-muted">{label}</span></article>)}</div>;
-}
-
-function ResourcePanel({ resources, subjects, busy, onUpload, onToggle }: { resources: ResourceRow[]; subjects: SubjectRow[]; busy: boolean; onUpload: (event: React.FormEvent<HTMLFormElement>) => void; onToggle: (item: ResourceRow) => void }) {
-  const [selectedProgram, setSelectedProgram] = useState("");
-  const [selectedSemester, setSelectedSemester] = useState("");
-  const program = academicPrograms.find((item) => item.shortName === selectedProgram);
-  const semester = program?.semesters.find((item) => String(item.number) === selectedSemester);
-  const offeredNames = new Set<string>(semester?.offerings.map((item) => item.name) || []);
-  const availableSubjects = subjects.filter((subject) => offeredNames.has(subject.name));
-
+function Field({
+  label,
+  ...props
+}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <div className="grid gap-6">
-      <form className="grid gap-4 rounded-lg border border-line bg-white p-6 shadow-soft md:grid-cols-2" onSubmit={onUpload}>
-        <h2 className="h2 md:col-span-2"><UploadCloud className="mr-2 inline" size={28} />Upload course resource</h2>
-        <label className="grid gap-2 text-sm font-extrabold">
-          Program
-          <select
-            className="form-input"
-            name="program"
-            value={selectedProgram}
-            onChange={(event) => { setSelectedProgram(event.target.value); setSelectedSemester(""); }}
-            required
-          >
-            <option value="" disabled>Choose program</option>
-            {programOptions.map(([value, display]) => <option key={value} value={value}>{display}</option>)}
-          </select>
-        </label>
-        <label className="grid gap-2 text-sm font-extrabold">
-          Semester
-          <select
-            className="form-input disabled:cursor-not-allowed disabled:opacity-60"
-            name="semester"
-            value={selectedSemester}
-            onChange={(event) => setSelectedSemester(event.target.value)}
-            disabled={!selectedProgram}
-            required
-          >
-            <option value="" disabled>Choose semester</option>
-            {semesterOptions.map(([value, display]) => <option key={value} value={value}>{display}</option>)}
-          </select>
-        </label>
-        <label className="grid gap-2 text-sm font-extrabold">
-          Subject
-          <select className="form-input disabled:cursor-not-allowed disabled:opacity-60" key={`${selectedProgram}-${selectedSemester}`} name="subject_id" disabled={!selectedSemester} required>
-            <option value="">Choose a subject</option>
-            {availableSubjects.map((subject) => <option key={subject.id} value={subject.id}>{subject.name}</option>)}
-          </select>
-        </label>
-        <StaticSelect name="material_type" label="Resource type" options={resourceCategoryOptions} />
-        <Input name="title" label="Resource title" minLength={3} maxLength={180} />
-        <label className="grid gap-2 text-sm font-extrabold">
-          File
-          <input className="form-input" name="file" type="file" accept=".pdf,.txt,.zip,.doc,.docx,.ppt,.pptx" required />
-        </label>
-        <label className="flex items-center gap-2 text-sm font-bold"><input name="published" type="checkbox" /> Publish immediately</label>
-        <button className="btn btn-primary md:justify-self-end" disabled={busy} type="submit">{busy ? "Uploading..." : "Upload resource"}</button>
-      </form>
-      <DataList empty="No course resources have been added yet.">
-        {resources.map((item) => (
-          <div className="grid gap-3 border-b border-line p-4 last:border-b-0 md:grid-cols-[1fr_auto]" key={item.id}>
-            <div><strong>{item.title}</strong><p className="text-sm text-muted">{item.program} · {item.semester ? `Semester ${item.semester.replace(/\D/g, "") || item.semester}` : "All semesters"} · {item.material_type}</p></div>
-            <button className="btn btn-secondary" type="button" onClick={() => onToggle(item)}>{item.published ? "Unpublish" : "Publish"}</button>
-          </div>
-        ))}
-      </DataList>
-    </div>
+    <label className="grid gap-1 text-sm font-bold">
+      {label}
+      <input className="form-input" {...props} />
+    </label>
   );
-}
-
-function SubjectPanel({ subjects, onSubmit }: { subjects: SubjectRow[]; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
-  return <div className="grid gap-6"><form className="grid gap-4 rounded-lg border border-line bg-white p-6 shadow-soft md:grid-cols-2" onSubmit={onSubmit}><h2 className="h2 md:col-span-2">Add a subject to the catalog</h2><Input name="name" label="Subject name" minLength={2} maxLength={160} /><StaticSelect name="program" label="Program" options={programOptions} /><StaticSelect name="semester" label="Semester" options={semesterOptions} /><label className="grid gap-2 text-sm font-extrabold md:col-span-2">Summary<textarea className="form-input min-h-28" name="summary" maxLength={2000} /></label><button className="btn btn-primary justify-self-start md:col-span-2" type="submit">Add subject</button></form><DataList empty="No subjects have been added to the catalog yet.">{subjects.map((item) => <div className="border-b border-line p-4 last:border-b-0" key={item.id}><strong>{item.name}</strong><p className="text-sm text-muted">{item.program} · {item.semester ? `Semester ${item.semester.replace(/\D/g, "") || item.semester}` : "Semester varies by program"} · /{item.slug}</p></div>)}</DataList></div>;
-}
-
-function NoticePanel({ busy, onSubmit }: { busy: boolean; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
-  return <form className="grid gap-4 rounded-lg border border-line bg-white p-6 shadow-soft" onSubmit={onSubmit}><h2 className="h2"><BellRing className="mr-2 inline" size={28} />Publish notice</h2><Input name="title" label="Title" minLength={3} maxLength={180} /><Input name="notice_type" label="Notice type" minLength={2} maxLength={80} /><label className="grid gap-2 text-sm font-extrabold">Message<textarea className="form-input min-h-36" name="body" minLength={3} maxLength={5000} required /></label><label className="flex items-center gap-2 text-sm font-bold"><input name="urgent" type="checkbox" /> Mark urgent</label><button className="btn btn-primary justify-self-start" disabled={busy} type="submit">{busy ? "Publishing..." : "Publish notice"}</button></form>;
-}
-
-function SubmissionPanel({ assignments, onDownload, onReview }: { assignments: AssignmentRow[]; onDownload: (item: AssignmentRow) => void; onReview: (id: string) => void }) {
-  return <DataList empty="No assignment submissions yet.">{assignments.map((item) => <div className="grid gap-3 border-b border-line p-4 last:border-b-0 md:grid-cols-[1fr_auto]" key={item.id}><div><strong>{item.title}</strong><p className="text-sm text-muted">Student: {item.student_id} · {item.status} · {new Date(item.submitted_at).toLocaleDateString()}</p>{item.feedback ? <p className="mt-1 text-sm">{item.feedback}</p> : null}</div><div className="flex flex-wrap gap-2"><button className="btn btn-secondary" type="button" onClick={() => onDownload(item)}><Download size={17} /> Open file</button>{item.status !== "reviewed" ? <button className="btn btn-secondary" type="button" onClick={() => onReview(item.id)}>Review</button> : null}</div></div>)}</DataList>;
-}
-
-function MessagePanel({ messages, onRead }: { messages: ContactRow[]; onRead: (id: string) => void }) {
-  return <DataList empty="No contact messages yet.">{messages.map((item) => <div className="border-b border-line p-4 last:border-b-0" key={item.id}><div className="flex flex-wrap justify-between gap-3"><strong>{item.subject}</strong><span className="pill">{item.status}</span></div><p className="mt-1 text-sm text-muted">{item.name} · {item.email} · {item.purpose}</p><p className="mt-3 whitespace-pre-wrap text-sm">{item.message}</p>{item.status === "new" ? <button className="btn btn-secondary mt-3" type="button" onClick={() => onRead(item.id)}>Mark read</button> : null}</div>)}</DataList>;
-}
-
-function Input({ label, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; name: string }) {
-  return <label className="grid gap-2 text-sm font-extrabold">{label}<input {...props} className="form-input" required={props.name !== "semester"} /></label>;
-}
-
-function StaticSelect({ name, label, options }: { name: string; label: string; options: readonly (readonly [string, string])[] }) {
-  return <label className="grid gap-2 text-sm font-extrabold">{label}<select className="form-input" name={name} defaultValue="" required><option value="" disabled>Choose {label.toLowerCase()}</option>{options.map(([value, display]) => <option key={value} value={value}>{display}</option>)}</select></label>;
-}
-
-function DataList({ children, empty }: { children: React.ReactNode; empty: string }) {
-  const hasChildren = Array.isArray(children) ? children.length > 0 : Boolean(children);
-  return <section className="overflow-hidden rounded-lg border border-line bg-white shadow-soft">{hasChildren ? children : <p className="p-6 text-muted">{empty}</p>}</section>;
 }

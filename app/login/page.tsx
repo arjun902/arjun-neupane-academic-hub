@@ -19,15 +19,22 @@ export default function LoginPage() {
     const password = String(form.get("password") || "");
 
     if (!isSupabaseConfigured || !supabase) {
-      setStatus("Online sign-in is unavailable at the moment. Please try again later or contact the administrator.");
+      setStatus(
+        "Online sign-in is unavailable at the moment. Please try again later or contact the administrator.",
+      );
       return;
     }
 
     setSubmitting(true);
     setStatus("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (error) {
-      setStatus("We could not sign you in. Check your email and password, then try again.");
+      setStatus(
+        "We could not sign you in. Check your email and password, then try again.",
+      );
       setSubmitting(false);
       return;
     }
@@ -38,7 +45,9 @@ export default function LoginPage() {
       router.refresh();
     } catch {
       await supabase.auth.signOut();
-      setStatus("This account has not been assigned a student or staff profile. Please contact the administrator.");
+      setStatus(
+        "This account has not been assigned a student or staff profile. Please contact the administrator.",
+      );
       setSubmitting(false);
     }
   }
@@ -49,13 +58,19 @@ export default function LoginPage() {
         <p className="eyebrow">Student and staff portal</p>
         <h1 className="h1">Sign in to your academic account</h1>
         <p className="lead mt-5">
-          Use your assigned account to find course files, submit work, review assessment feedback and read notices relevant
-          to your studies or teaching.
+          Use your instructor-provided account to find course files, save
+          bookmarks and read announcements relevant to your studies or teaching.
         </p>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          <Role title="Students" body="Download course files, submit assignments and review feedback." />
-          <Role title="Teachers" body="Publish resources, record assessments and share notices." />
-          <Role title="Administrators" body="Manage the academic catalog, accounts, submissions and enquiries." />
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
+          <Role
+            title="Students"
+            body="Open assigned courses, bookmark resources and track your reading."
+          />
+
+          <Role
+            title="Administrators"
+            body="Manage student access, courses, materials and announcements."
+          />
         </div>
       </section>
       <section className="rounded-lg border border-line bg-white p-7 shadow-premium">
@@ -64,18 +79,52 @@ export default function LoginPage() {
         <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
           <label className="grid gap-2 text-sm font-extrabold text-slate-700">
             Email
-            <input className="form-input" name="email" type="email" autoComplete="email" maxLength={254} required />
+            <input
+              className="form-input"
+              name="email"
+              type="email"
+              autoComplete="email"
+              maxLength={254}
+              required
+            />
           </label>
           <label className="grid gap-2 text-sm font-extrabold text-slate-700">
             Password
-            <input className="form-input" name="password" type="password" autoComplete="current-password" minLength={8} required />
+            <input
+              className="form-input"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              minLength={8}
+              required
+            />
           </label>
-          <button className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-60" type="submit" disabled={submitting}>
+          <button
+            className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+            type="submit"
+            disabled={submitting}
+          >
             <LogIn size={18} /> {submitting ? "Signing in..." : "Sign in"}
           </button>
-          <p className="text-sm text-muted"><UserRound className="mr-1 inline" size={16} />You will be directed to the dashboard assigned to your account.</p>
-          <p className="text-sm text-muted"><LayoutDashboard className="mr-1 inline" size={16} />If the wrong dashboard opens, ask the administrator to check your profile.</p>
-          {status ? <p role="status" aria-live="polite" className="text-sm font-bold text-teal-deep">{status}</p> : null}
+          <p className="text-sm text-muted">
+            <UserRound className="mr-1 inline" size={16} />
+            You will be directed to the dashboard assigned to your account.
+          </p>
+          <p className="text-sm text-muted">
+            <LayoutDashboard className="mr-1 inline" size={16} />
+            Forgot your password or need access? Contact Er. Arjun Neupane
+            directly for an instructor-assisted reset. No public registration is
+            available.
+          </p>
+          {status ? (
+            <p
+              role="status"
+              aria-live="polite"
+              className="text-sm font-bold text-teal-deep"
+            >
+              {status}
+            </p>
+          ) : null}
         </form>
       </section>
     </main>

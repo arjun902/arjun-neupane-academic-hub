@@ -128,3 +128,12 @@ textarea {
       var(--hero-image) center / cover no-repeat;
   }
 }
+
+body { background: #faf9f6; }
+:focus-visible { outline: 3px solid #087d78; outline-offset: 3px; }
+.form-input { width: 100%; min-width: 0; }
+button:disabled { opacity: .55; cursor: wait; }
+.skip-link { position: fixed; top: -100px; left: 1rem; z-index: 100; background: white; padding: .8rem; }
+.skip-link:focus { top: .5rem; }
+.card:hover { transform: none; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }

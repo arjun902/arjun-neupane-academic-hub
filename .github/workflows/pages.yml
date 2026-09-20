@@ -1,8 +1,6 @@
-name: Deploy to GitHub Pages
+﻿name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
 
 permissions: {}
@@ -36,6 +34,12 @@ jobs:
 
       - name: Type check
         run: npm run typecheck
+
+      - name: Verify Edge Function types
+        run: npm run typecheck:edge
+
+      - name: Verify database access policies
+        run: npm run test:policies
 
       - name: Build static site
         run: npm run build

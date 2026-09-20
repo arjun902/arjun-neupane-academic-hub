@@ -11,7 +11,12 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "verify:export": "node scripts/verify-export.mjs",
-    "check": "npm run typecheck && npm audit --omit=dev --audit-level=high"
+    "check": "npm run typecheck && npm audit --omit=dev --audit-level=high",
+    "test:policies": "node scripts/test-policies.mjs && node scripts/test-policies.mjs --legacy",
+    "build:pages": "node scripts/build-pages.mjs",
+    "typecheck:edge": "tsc -p supabase/functions/tsconfig.json",
+    "doctor": "node scripts/doctor.mjs",
+    "test:supabase:local": "node scripts/test-supabase-local.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
@@ -21,11 +26,13 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@types/node": "^22.10.7",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.1",
+    "prettier": "^3.9.8",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"
   }

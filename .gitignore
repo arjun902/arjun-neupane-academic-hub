@@ -11,3 +11,8 @@ yarn-error.log*
 pnpm-debug.log*
 .vercel
 tsconfig.tsbuildinfo
+
+/private-migration/
+.env
+.env.*
+!.env.example

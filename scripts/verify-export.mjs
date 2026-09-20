@@ -2,7 +2,9 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 
 const outputRoot = join(process.cwd(), "out");
-const configuredBasePath = process.env.NEXT_PUBLIC_BASE_PATH || (process.env.GITHUB_PAGES === "true" ? "/arjun-neupane-academic-hub" : "");
+const configuredBasePath =
+  process.env.NEXT_PUBLIC_BASE_PATH ||
+  (process.env.GITHUB_PAGES === "true" ? "/arjun-neupane-academic-hub" : "");
 
 if (!existsSync(outputRoot)) {
   console.error("Export verification failed: out/ does not exist.");
@@ -16,7 +18,8 @@ function filesWithin(directory) {
   });
 }
 
-const htmlFiles = filesWithin(outputRoot).filter((file) => file.endsWith(".html"));
+const outputFiles = filesWithin(outputRoot);
+const htmlFiles = outputFiles.filter((file) => file.endsWith(".html"));
 const refs = new Set();
 const failures = [];
 const publicResourceRoot = join(process.cwd(), "public", "resources");
@@ -26,9 +29,14 @@ const publicResourceFiles = existsSync(publicResourceRoot)
 
 for (const file of htmlFiles) {
   const html = readFileSync(file, "utf8");
-  if (html.includes('href="#"')) failures.push(`${relative(outputRoot, file)} contains href="#"`);
-  if (html.includes("[ADD ")) failures.push(`${relative(outputRoot, file)} contains an unfinished placeholder`);
-  for (const match of html.matchAll(/(?:href|src)="([^"]+)"/g)) refs.add(match[1]);
+  if (html.includes('href="#"'))
+    failures.push(`${relative(outputRoot, file)} contains href="#"`);
+  if (html.includes("[ADD "))
+    failures.push(
+      `${relative(outputRoot, file)} contains an unfinished placeholder`,
+    );
+  for (const match of html.matchAll(/(?:href|src)="([^"]+)"/g))
+    refs.add(match[1]);
 }
 
 // A locally inspected GitHub Pages export may no longer have the build-time
@@ -42,21 +50,55 @@ const basePath = configuredBasePath || inferredBasePath || "";
 for (const ref of refs) {
   if (!ref.startsWith("/") || (basePath && !ref.startsWith(basePath))) continue;
   const withoutBase = basePath ? ref.slice(basePath.length) : ref;
-  const clean = decodeURIComponent(withoutBase.split(/[?#]/, 1)[0]).replace(/^\/+/, "");
+  const clean = decodeURIComponent(withoutBase.split(/[?#]/, 1)[0]).replace(
+    /^\/+/,
+    "",
+  );
   const candidates = clean
     ? extname(clean)
       ? [join(outputRoot, clean)]
-      : [join(outputRoot, clean, "index.html"), join(outputRoot, `${clean}.html`)]
+      : [
+          join(outputRoot, clean, "index.html"),
+          join(outputRoot, `${clean}.html`),
+        ]
     : [join(outputRoot, "index.html")];
-  if (!candidates.some(existsSync)) failures.push(`Missing export target for ${ref}`);
+  if (!candidates.some(existsSync))
+    failures.push(`Missing export target for ${ref}`);
 }
 
-for (const resourceFile of publicResourceFiles) {
-  const resourcePath = relative(join(process.cwd(), "public"), resourceFile);
-  if (!existsSync(join(outputRoot, resourcePath))) {
-    failures.push(`Missing exported public resource: ${resourcePath}`);
+for (const file of outputFiles) {
+  const rel = relative(outputRoot, file).replaceAll("\\", "/");
+  if (
+    /\.(pdf|zip|docx?|pptx?|map)$/i.test(file) ||
+    /(^|\/)(resources|private-migration|legacy-source)\//.test(rel)
+  )
+    failures.push(`Protected file or source map in export: ${rel}`);
+  if (/\.(js|html|json|txt)$/.test(file)) {
+    const body = readFileSync(file, "utf8");
+    if (
+      /\/resources\/bca|file-handling-questions-with-solutions\.pdf|SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*["'][^"']{15}|sb_secret_[A-Za-z0-9_-]+/.test(
+        body,
+      )
+    )
+      failures.push(`Private path or secret marker in export: ${rel}`);
+    for (const token of body.match(
+      /eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,
+    ) || []) {
+      try {
+        if (
+          JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString())
+            .role === "service_role"
+        )
+          failures.push(`Service-role JWT in export: ${rel}`);
+      } catch {}
+    }
   }
 }
+if (publicResourceFiles.length)
+  failures.push("Teaching PDFs must not be stored in public/resources");
+for (const route of ["", "courses", "login", "student", "admin"])
+  if (!existsSync(join(outputRoot, route, "index.html")))
+    failures.push(`Missing refresh-safe route: ${route}`);
 
 if (failures.length) {
   console.error(`Export verification failed with ${failures.length} issue(s):`);
@@ -65,5 +107,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Verified ${htmlFiles.length} HTML files, ${refs.size} unique links/assets, and ${publicResourceFiles.length} public PDF resources.`
+  `Verified ${htmlFiles.length} HTML files, ${refs.size} unique links/assets, refresh-safe portal routes, and no protected files/source maps or detected secret values in the export.`,
 );
