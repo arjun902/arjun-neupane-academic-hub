@@ -104,7 +104,7 @@ export function AuthGate({
         <p className="eyebrow">Secure your account</p>
         <h1 className="h2">Choose your own password</h1>
         <p className="my-4">
-          Replace the temporary password before opening your courses. Use at
+          Replace the temporary administrator password before continuing. Use at
           least 12 characters.
         </p>
         <form
@@ -187,7 +187,7 @@ export function AuthGate({
     return (
       <main className="site-container grid min-h-[55vh] place-items-center py-12">
         <section className="card max-w-lg">
-          <p className="eyebrow">Student learning portal</p>
+          <p className="eyebrow">Instructor workspace</p>
           <h1 className="h2">
             {state === "unconfigured"
               ? "Portal unavailable"
@@ -197,7 +197,7 @@ export function AuthGate({
                   ? "Sign-out incomplete"
                   : state === "denied"
                     ? "Access unavailable"
-                    : "Welcome to your learning space"}
+                    : "Instructor sign-in required"}
           </h1>
           <p className="my-5 text-muted">
             {state === "unconfigured"
@@ -206,12 +206,12 @@ export function AuthGate({
                 ? "Your learning space is closed while sign-out completes."
                 : state === "denied"
                   ? "Your account is suspended, expired, or not permitted here. Ask your instructor for assistance."
-                  : "Sign in with your individual account to open your assigned courses."}
+                  : "Sign in with your administrator account to manage courses and materials. Students can access courses from the catalogue."}
           </p>
           <p role="status">{message}</p>
           {state !== "signing-out" && state !== "signout-error" && (
-            <Link className="btn btn-primary" href="/login">
-              Student Login
+            <Link className="btn btn-primary" href="/instructor-login">
+              Instructor Login
             </Link>
           )}
           {profile && (

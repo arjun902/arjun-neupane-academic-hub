@@ -1,11 +1,13 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AuthGate } from "@/components/auth-gate";
+import { CoursePasswordAdmin } from "@/components/course-password-admin";
 import { adminAction } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { fetchRows } from "@/lib/fetch-rows";
 import {
   categories,
+  phaseCourses,
   type Account,
   type Course,
   type Resource,
@@ -141,7 +143,9 @@ function AdminPanel() {
       return "Dashboard could not load. Check your connection and administrator access, then refresh.";
     }
     setAccounts(r[0].data || []);
-    setCourses(r[1].data || []);
+    setCourses(
+      (r[1].data || []).filter((c) => phaseCourses.some((p) => p.id === c.id)),
+    );
     setUnits(r[2].data || []);
     setResources(r[3].data || []);
     setEnrollments(r[4].data || []);
@@ -218,6 +222,7 @@ function AdminPanel() {
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
           );
           xhr.setRequestHeader("Content-Type", mime!);
+          xhr.setRequestHeader("cache-control", "no-store");
           xhr.upload.onprogress = (ev) => {
             if (ev.lengthComputable)
               setProgress(Math.round((ev.loaded / ev.total) * 100));
@@ -328,6 +333,7 @@ function AdminPanel() {
         >
           {[
             "Overview",
+            "Course passwords",
             "Students",
             "Courses & units",
             "Materials",
@@ -374,9 +380,9 @@ function AdminPanel() {
                 {[
                   [
                     accounts.filter((a) => a.role === "student").length,
-                    "Students",
+                    "Legacy student accounts",
                   ],
-                  [enrollments.length, "Enrollments"],
+                  [courses.length, "Courses"],
                   [
                     resources.filter(
                       (r) =>
@@ -396,9 +402,10 @@ function AdminPanel() {
               <section className="card mt-5">
                 <h2 className="text-xl font-bold">Start with the essentials</h2>
                 <p className="mt-2 text-muted">
-                  Create a student, assign their courses, then upload syllabi
-                  and teaching materials as drafts. Publish resources when they
-                  are ready for your class.
+                  Set each course password in Course passwords, enable access,
+                  and distribute it to your class. Upload materials as drafts
+                  and publish them when ready. Student accounts are not
+                  required.
                 </p>
                 <button
                   className="btn btn-primary mt-4"
@@ -409,8 +416,16 @@ function AdminPanel() {
               </section>
             </>
           )}
+          {tab === "Course passwords" && (
+            <CoursePasswordAdmin courses={courses} />
+          )}
           {tab === "Students" && (
             <>
+              <p className="mb-4 text-sm text-muted">
+                Legacy account administration is retained for existing records.
+                These accounts and enrollments do not grant access to the
+                course-password library.
+              </p>
               <h2 className="mb-4 text-2xl font-bold">
                 {student ? "Edit student" : "Create student account"}
               </h2>
@@ -651,87 +666,89 @@ function AdminPanel() {
           {tab === "Courses & units" && (
             <>
               <h2 className="mb-4 text-2xl font-bold">
-                {editCourse ? "Edit course" : "Add a future course"}
+                {editCourse ? "Edit course" : "Courses & units"}
               </h2>
-              <form
-                key={editCourse?.id || "course"}
-                className="card grid gap-4 sm:grid-cols-2"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const f = new FormData(e.currentTarget);
-                  void run(async () => {
-                    await save("hub_courses", {
-                      id: editCourse?.id || field(f, "id"),
-                      name: field(f, "name"),
-                      program: field(f, "program"),
-                      summary: field(f, "summary"),
-                      visible: f.get("visible") === "on",
-                      code: field(f, "code") || null,
-                      semester: field(f, "semester") || null,
-                      credits: field(f, "credits") || null,
-                      syllabus_version: field(f, "syllabus_version") || null,
+              {editCourse && (
+                <form
+                  key={editCourse?.id || "course"}
+                  className="card grid gap-4 sm:grid-cols-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const f = new FormData(e.currentTarget);
+                    void run(async () => {
+                      await save("hub_courses", {
+                        id: editCourse?.id || field(f, "id"),
+                        name: field(f, "name"),
+                        program: field(f, "program"),
+                        summary: field(f, "summary"),
+                        visible: f.get("visible") === "on",
+                        code: field(f, "code") || null,
+                        semester: field(f, "semester") || null,
+                        credits: field(f, "credits") || null,
+                        syllabus_version: field(f, "syllabus_version") || null,
+                      });
+                      setEditCourse(null);
                     });
-                    setEditCourse(null);
-                  });
-                }}
-              >
-                <Field
-                  label="Course name"
-                  name="name"
-                  required
-                  defaultValue={editCourse?.name}
-                />
-                <Field
-                  label="Stable ID (lowercase and hyphens)"
-                  name="id"
-                  pattern="[a-z0-9-]+"
-                  required
-                  disabled={!!editCourse}
-                  defaultValue={editCourse?.id}
-                />
-                <Field
-                  label="Programme"
-                  name="program"
-                  required
-                  defaultValue={editCourse?.program}
-                />
-                <Field
-                  label="Short public description"
-                  name="summary"
-                  required
-                  defaultValue={editCourse?.summary}
-                />
-                {(
-                  ["code", "semester", "credits", "syllabus_version"] as const
-                ).map((n) => (
+                  }}
+                >
                   <Field
-                    key={n}
-                    label={n.replace("_", " ") + " (verified only)"}
-                    name={n}
-                    defaultValue={editCourse?.[n] || ""}
+                    label="Course name"
+                    name="name"
+                    required
+                    defaultValue={editCourse?.name}
                   />
-                ))}
-                <label>
-                  <input
-                    type="checkbox"
-                    name="visible"
-                    defaultChecked={editCourse?.visible}
-                  />{" "}
-                  Show in public catalogue
-                </label>
-                <button disabled={busy} className="btn btn-primary">
-                  Save course
-                </button>
-                {editCourse && (
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setEditCourse(null)}
-                  >
-                    Cancel
+                  <Field
+                    label="Stable ID (lowercase and hyphens)"
+                    name="id"
+                    pattern="[a-z0-9-]+"
+                    required
+                    disabled={!!editCourse}
+                    defaultValue={editCourse?.id}
+                  />
+                  <Field
+                    label="Programme"
+                    name="program"
+                    required
+                    defaultValue={editCourse?.program}
+                  />
+                  <Field
+                    label="Short public description"
+                    name="summary"
+                    required
+                    defaultValue={editCourse?.summary}
+                  />
+                  {(
+                    ["code", "semester", "credits", "syllabus_version"] as const
+                  ).map((n) => (
+                    <Field
+                      key={n}
+                      label={n.replace("_", " ") + " (verified only)"}
+                      name={n}
+                      defaultValue={editCourse?.[n] || ""}
+                    />
+                  ))}
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="visible"
+                      defaultChecked={editCourse?.visible}
+                    />{" "}
+                    Show in public catalogue
+                  </label>
+                  <button disabled={busy} className="btn btn-primary">
+                    Save course
                   </button>
-                )}
-              </form>
+                  {editCourse && (
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setEditCourse(null)}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </form>
+              )}
               <p className="my-4 text-sm text-muted">
                 Leave official metadata blank until you verify the current TU
                 syllabus.

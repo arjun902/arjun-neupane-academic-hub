@@ -1,2 +1,5 @@
 [functions.portal-admin]
 verify_jwt = false
+
+[functions.course-access]
+verify_jwt = false

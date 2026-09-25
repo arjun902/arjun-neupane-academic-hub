@@ -1,84 +1,86 @@
 # First Supabase setup
 
-The frontend and database code are ready. A Supabase project has not yet been created or deployed for this workspace. Follow these steps in order. Keep passwords and service-role keys out of chat and Git.
+The course-password implementation is ready locally. The project URL/public key are not configured. Protected access fails closed. Keep passwords and service-role credentials out of chat and Git.
 
 ## 1. Create your project
 
-Open [Supabase Dashboard](https://supabase.com/dashboard) and sign in. Create an organisation/project named `arjun-academic-hub`. Select the Free option if offered, choose a nearby region and save the database password privately. Do not purchase or upgrade a plan for this setup. Wait for the project to become ready. See the [official project quickstart](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs).
+Open [Supabase Dashboard](https://supabase.com/dashboard), create your own project, choose a nearby region and save its database password privately. Use an available free plan; no purchase is required by this code. Do not accept account terms or enter credentials through chat.
 
-## 2. Create the database and private bucket
+## 2. Apply database setup
 
-In the project's SQL Editor, run these files separately and in this order:
+In SQL Editor run these files in order, once:
 
-1. `supabase/migrations/202609190001_academic_hub.sql` — once only. Do not also run `schema.sql`, which is the same migration.
-2. `supabase/seed.sql` — creates the six initial courses without sample teaching materials.
+1. supabase/migrations/202609190001_academic_hub.sql
+2. supabase/seed.sql
+3. supabase/migrations/202609200001_course_password_access.sql
 
-Check Storage: `hub-materials` must be private. This setup does not import the eight quarantined PDFs. Ensure the Data API is enabled for the `public` schema; keep the migration's grants and RLS policies intact.
+An existing phase-one database needs only step 3. Back it up first. The new migration preserves accounts, enrollments, activity and teaching content, while moving student material access to the gateway.
 
-## 3. Set authentication options
+For a fresh project, supabase/schema.sql is an alternative combined snapshot with seed. Do not run both methods.
 
-- Keep email/password sign-in enabled.
-- Turn **Allow new users to sign up** off. Disable anonymous sign-ins and unused providers.
-- Keep automatic security email notifications off. This portal distributes credentials manually.
-- Set the Site URL to `http://localhost:3000` for the first local check. The eventual production URL is `https://arjun902.github.io/arjun-neupane-academic-hub/`.
-- Retain provider login rate limits. Do not enable CAPTCHA until its UI/token integration is added; it is not currently integrated.
+Check that hub-materials, materials and assignments buckets are private. Do not upload protected files to public/ or GitHub. No teaching resources are seeded. Keep migration grants/RLS unchanged.
 
-See [Auth settings](https://supabase.com/docs/guides/auth/general-configuration). These dashboard settings are not applied by the SQL migration.
+## 3. Configure administrator Auth
 
-## 4. Fill the local configuration
+Keep email/password sign-in enabled for the instructor. Disable public signup, anonymous sign-in and unused providers. Keep provider rate limits. Do not use invitations or automatic credential email delivery.
 
-In the project's **Connect** panel, copy the Project URL and a **publishable key** (`sb_publishable_...`) or legacy **anon** key. Both public key types work in the existing environment variable. See [API key types](https://supabase.com/docs/guides/getting-started/api-keys).
+Use the Auth Site URL http://localhost:3000 for local setup, and https://arjun902.github.io/arjun-neupane-academic-hub/ for production. Course students do not use Supabase Auth.
 
-Open the ignored `.env.local` in this repository and set:
+CAPTCHA is not integrated; enabling it before adding its UI/token handling would break instructor sign-in/reauthentication.
+
+## 4. Configure the frontend
+
+Copy .env.example to .env.local only if it does not already exist. Set:
 
 ```dotenv
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_BASE_PATH=
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_OR_ANON_KEY
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_OR_LEGACY_ANON_KEY
 ```
 
-Never use a `sb_secret_...` key or service-role JWT here. Keep `.env.example` free of real project values. From the repository's PowerShell terminal:
+Use the project's publishable key (sb_publishable_...) or legacy anon key from Connect. Never use sb_secret_... or a service-role JWT. Contact email is optional; the existing LinkedIn contact remains available.
 
 ```powershell
 npm.cmd run doctor
 ```
 
-The command reports missing/invalid configuration without printing key values. It does not create a project or deploy anything.
+Doctor checks configuration without printing keys.
 
-## 5. Deploy the administrative function
+## 5. Deploy both functions when authorized
 
-This step changes the Supabase backend, so run it only for the project you just created. With Node.js installed, use the official Supabase CLI through npx:
+These commands modify the selected backend. Run them yourself when ready, using your project reference:
 
 ```powershell
 npx.cmd supabase login
 npx.cmd supabase link --project-ref YOUR_PROJECT_REF
 npx.cmd supabase secrets set ALLOWED_ORIGIN=http://localhost:3000 --project-ref YOUR_PROJECT_REF
 npx.cmd supabase functions deploy portal-admin --project-ref YOUR_PROJECT_REF
+npx.cmd supabase functions deploy course-access --project-ref YOUR_PROJECT_REF
 ```
 
-Complete the CLI login yourself. Do not paste an access token into chat. The hosted function receives its server-side Supabase keys from the platform. Its supplied `config.toml` disables gateway JWT verification because the handler verifies the caller itself and checks administrator permissions. See [official function deployment](https://supabase.com/docs/guides/functions/deploy).
+Supabase supplies SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY in the function environment. Service credentials stay server-side. ALLOWED_ORIGIN is one exact browser origin, without a path/trailing slash.
 
-Then run:
+Both functions use the included verify_jwt=false configuration and implement their own authorization. portal-admin verifies Auth identity, role, active status and credential version. course-access verifies passwords/session grants; an anon key alone grants no course content.
+
+Confirm the actual gateway supplies trusted client metadata in X-Forwarded-For and that caller-supplied values cannot bypass network limits. Missing metadata fails closed. Do not enable body/header/SQL parameter logging for secret-bearing requests.
 
 ```powershell
 npm.cmd run doctor -- --remote
 ```
 
-This makes read-only checks for the catalogue, anonymous metadata denial, disabled signup and the deployed function's anonymous rejection. It does not create accounts, send email or upload files. It does not replace authenticated tests.
+Remote doctor performs read-only checks; it does not create accounts, upload files or replace end-to-end testing.
 
-## 6. Create your instructor account
+## 6. Provision the instructor
 
-In Authentication > Users, create a user with your email and a strong temporary password; confirm the email during creation. Use **create**, not an emailed invitation. Then copy `supabase/bootstrap-admin.sql` into SQL Editor, replace `REPLACE_WITH_YOUR_EMAIL` and run it once. The script rejects an existing portal account rather than resetting its permissions or credential version.
+In Authentication > Users, create an instructor user with a strong temporary password and confirmed email; do not send an invitation. Run supabase/bootstrap-admin.sql after replacing its email placeholder. It rejects an existing hub account rather than overwriting permissions/version.
 
-```powershell
-npm.cmd run dev
-```
+Start npm.cmd run dev and open http://localhost:3000/instructor-login/. Sign in, change the temporary administrator password, and sign in again. In Course passwords, set/generate passwords, enable access and configure expiry. Follow [the instructor guide](COURSE_ACCESS.md). No student accounts are needed.
 
-Open `http://localhost:3000/login/`, sign in, replace the temporary password, then sign in again with the new password. You should reach the admin dashboard. Create one test student manually, assign a course, and verify its first-password and resource access workflows before adding real students.
+## 7. Verify and release
 
-## 7. Finish verification before a public release
+Use [VERIFICATION.md](VERIFICATION.md) for hosted and mobile/desktop checks. The local HTTP harness requires a pristine disposable loopback Supabase stack; see npm.cmd run test:supabase:local -- --help.
 
-Use `docs/VERIFICATION.md` for authenticated access tests and desktop/mobile screenshots. If you have a disposable local Supabase stack, `npm.cmd run test:supabase:local` runs HTTP integration checks against loopback addresses only; it refuses cloud URLs. Never use service-role keys in frontend configuration.
+For production set ALLOWED_ORIGIN=https://arjun902.github.io, update Auth Site URL, and add NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY as Pages repository secrets. Optional contact fields are repository variables. Never add service-role credentials to Pages.
 
-GitHub Pages deployment remains separate. When ready to release, change `ALLOWED_ORIGIN` to `https://arjun902.github.io`, set the production Auth Site URL, add the public URL/key to the repository's configured Pages secrets, and manually run the Pages workflow. The function currently accepts one browser origin; change it back when testing locally. No GitHub Pages release was performed by these setup preparations.
+After backend/visual verification and release authorization, manually run Deploy to GitHub Pages. Pushes do not deploy. A frontend-only release can show the course-password screens while backend setup is pending; it cannot unlock materials until the Supabase configuration is supplied.

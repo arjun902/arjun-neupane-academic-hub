@@ -8,6 +8,7 @@ const navItems = [
   ["Home", "/"],
   ["Courses", "/courses"],
   ["About the Instructor", "/about"],
+  ["Instructor Login", "/instructor-login"],
 ] as const;
 
 export function SiteHeader() {
@@ -55,9 +56,12 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link href="/login" className="btn btn-primary hidden lg:inline-flex">
+          <Link
+            href="/courses"
+            className="btn btn-primary hidden lg:inline-flex"
+          >
             <LogIn size={18} />
-            Login
+            Access My Courses
           </Link>
           <button
             className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-line bg-white text-navy lg:hidden"
@@ -88,12 +92,12 @@ export function SiteHeader() {
               </Link>
             ))}
             <Link
-              href="/login"
+              href="/courses"
               className="btn btn-primary mt-2"
               onClick={() => setOpen(false)}
             >
               <LogIn size={18} />
-              Login
+              Access My Courses
             </Link>
           </div>
         </nav>

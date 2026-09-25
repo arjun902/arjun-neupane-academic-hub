@@ -1,5 +1,11 @@
 # Existing content migration
 
+## Course-password revision (2026-09-24)
+
+Apply `202609200001_course_password_access.sql` after the phase-one migration and seed. Existing accounts, enrollments, activity, units, resources and files are retained. Direct student resource/Storage policies are replaced by the server-verified course-session gateway. Each of the six courses starts disabled without a password; the instructor must set one and enable access. The new Sample Code collection brings the current collection count to eleven.
+
+The historical inventory below remains relevant for the quarantined PDFs. References to an authorized test student or distributing credentials now mean testing and distributing the shared course password; see [COURSE_ACCESS.md](COURSE_ACCESS.md). No personal accounts are needed for course access.
+
 Status: local code migration prepared; no production storage upload, remote deletion, Git history rewrite or live deployment has been performed by this work.
 
 ## Public material exposure found

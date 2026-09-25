@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["runtime.d.ts", "portal-admin/index.ts"]
+  "include": ["runtime.d.ts", "portal-admin/index.ts", "course-access/index.ts"]
 }

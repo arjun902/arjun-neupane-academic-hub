@@ -145,19 +145,107 @@ Deno.serve(async (req) => {
           "Credentials changed concurrently. Contact your instructor.",
         );
       await ok(
+        db.from("hub_audit").insert({
+          actor_id: user.id,
+          action: "password_changed",
+          entity: "account",
+          entity_id: user.id,
+        }),
+      );
+      return reply({ ok: true });
+    }
+    if (
+      account.role !== "admin" ||
+      account.must_change_password ||
+      account.credential_operation
+    )
+      return reply({ error: "Administrator access required" }, 403);
+    if (body.action === "course-access-list") {
+      const { data: configs, error: configError } = await db
+        .from("hub_course_access_config")
+        .select("*")
+        .order("course_id");
+      if (configError) throw Error("Course access migration is not ready.");
+      return reply({
+        courses: configs.map(({ password_hash, ...config }) => ({
+          ...config,
+          password_set: !!password_hash,
+        })),
+      });
+    }
+    if (
+      ["course-password", "course-access-update", "course-revoke"].includes(
+        body.action,
+      )
+    ) {
+      const cid = required(body.course_id);
+      let generated: string | undefined;
+      if (body.action === "course-password") {
+        if (body.generate === true) {
+          const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+          generated = Array.from(
+            crypto.getRandomValues(new Uint8Array(20)),
+            (x) => alphabet[x % 32],
+          )
+            .join("")
+            .match(/.{4}/g)!
+            .join("-");
+        }
+        const next = generated ?? credential(body.password);
+        if (next.length < 12 || new TextEncoder().encode(next).length > 72)
+          throw Error(
+            "Use at least 12 characters and no more than 72 UTF-8 bytes.",
+          );
+        await ok(
+          db.rpc("hub_set_course_password", {
+            course_id_input: cid,
+            password_input: next,
+          }),
+        );
+      } else if (body.action === "course-revoke") {
+        await ok(
+          db.rpc("hub_revoke_course_sessions", { course_id_input: cid }),
+        );
+      } else {
+        const standard = Number(body.standard_minutes),
+          remembered = Number(body.remembered_minutes);
+        if (
+          typeof body.enabled !== "boolean" ||
+          !Number.isInteger(standard) ||
+          standard < 15 ||
+          standard > 480 ||
+          !Number.isInteger(remembered) ||
+          remembered < 60 ||
+          remembered > 10080
+        )
+          throw Error(
+            "Standard duration must be 15–480 minutes; remembered duration 60–10080 minutes.",
+          );
+        await ok(
+          db.rpc("hub_update_course_access", {
+            cid,
+            access_enabled: body.enabled,
+            deadline: expiry(body.expires_at ?? null),
+            standard,
+            remembered,
+          }),
+        );
+      }
+      await ok(
         db
           .from("hub_audit")
           .insert({
             actor_id: user.id,
-            action: "password_changed",
-            entity: "account",
-            entity_id: user.id,
+            action: body.action,
+            entity: "course_access",
+            entity_id: cid,
           }),
       );
-      return reply({ ok: true });
+      return reply({
+        ok: true,
+        ...(generated ? { generated_password: generated } : {}),
+      });
     }
-    if (account.role !== "admin" || account.must_change_password)
-      return reply({ error: "Administrator access required" }, 403);
     let temporary: string | undefined;
     let target: string | undefined;
     if (body.action === "create-student") {
@@ -179,14 +267,12 @@ Deno.serve(async (req) => {
           "Account could not be created. Check whether the email already exists.",
         );
       target = created.data.user.id;
-      const saved = await db
-        .from("hub_accounts")
-        .insert({
-          id: target,
-          email,
-          full_name: name,
-          expires_at: expiresAt,
-        });
+      const saved = await db.from("hub_accounts").insert({
+        id: target,
+        email,
+        full_name: name,
+        expires_at: expiresAt,
+      });
       if (saved.error) {
         await db.auth.admin.deleteUser(target);
         throw Error("Account could not be saved");
@@ -250,13 +336,11 @@ Deno.serve(async (req) => {
         );
       } else if (body.action === "enroll") {
         await ok(
-          db
-            .from("hub_enrollments")
-            .upsert({
-              student_id: target,
-              course_id: required(body.course_id),
-              expires_at: expiry(body.expires_at),
-            }),
+          db.from("hub_enrollments").upsert({
+            student_id: target,
+            course_id: required(body.course_id),
+            expires_at: expiry(body.expires_at),
+          }),
         );
       } else if (body.action === "revoke") {
         await ok(
@@ -269,14 +353,12 @@ Deno.serve(async (req) => {
       } else throw Error("Unknown operation");
     }
     await ok(
-      db
-        .from("hub_audit")
-        .insert({
-          actor_id: user.id,
-          action: body.action,
-          entity: "account",
-          entity_id: target,
-        }),
+      db.from("hub_audit").insert({
+        actor_id: user.id,
+        action: body.action,
+        entity: "account",
+        entity_id: target,
+      }),
     );
     return reply({
       ok: true,

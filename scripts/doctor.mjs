@@ -53,6 +53,7 @@ check(
 );
 check(
   existsSync("supabase/migrations/202609190001_academic_hub.sql") &&
+    existsSync("supabase/migrations/202609200001_course_password_access.sql") &&
     existsSync("supabase/seed.sql"),
   "Migration and seed files exist",
 );
@@ -118,6 +119,33 @@ try {
     edge.status === 401 && edgeBody?.error === "Sign in required",
     "Admin function deployed and rejects anonymous requests",
     "Deploy portal-admin with its supplied config.toml.",
+  );
+  const courseEdge = await request(
+    new URL("/functions/v1/course-access", url),
+    {
+      method: "POST",
+      headers: { apikey: key, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "content",
+        course_id: "bca-c-programming",
+      }),
+    },
+  );
+  const courseBody = await courseEdge.json().catch(() => null);
+  check(
+    courseEdge.status === 401 && courseBody?.code === "session_invalid",
+    "Course gateway rejects requests without a course session",
+    "Deploy course-access and apply the course-password migration.",
+  );
+  const secretTable = await client
+    .from("hub_course_access_config")
+    .select("course_id")
+    .limit(1);
+  check(
+    [401, 403].includes(secretTable.status) &&
+      secretTable.error?.code === "42501",
+    "Course configuration is inaccessible to browser clients",
+    "Apply the course-password migration grants and RLS.",
   );
 } catch {
   check(

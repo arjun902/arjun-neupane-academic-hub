@@ -45,6 +45,7 @@ export const categories = [
   "Unit-wise Notes",
   "Slides",
   "Labs / Practical Work",
+  "Sample Code",
   "Assignments",
   "Question Bank",
   "Past Questions",

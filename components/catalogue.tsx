@@ -4,9 +4,47 @@ import { useEffect, useState } from "react";
 import { ArrowUpRight, BookOpen } from "lucide-react";
 import { phaseCourses } from "@/lib/portal";
 import { supabase } from "@/lib/supabase";
+import {
+  CourseAccessError,
+  clearCourseSession,
+  courseRequest,
+  getCourseSession,
+  lockAllCourses,
+} from "@/lib/course-access";
 export function Catalogue() {
   const [courses, setCourses] = useState(phaseCourses);
   const [query, setQuery] = useState("");
+  const [unlocked, setUnlocked] = useState<string[]>([]),
+    [status, setStatus] = useState("");
+  useEffect(() => {
+    let alive = true;
+    async function check() {
+      const results = await Promise.all(
+        phaseCourses.map(async (c) => {
+          const session = getCourseSession(c.id);
+          if (!session) return null;
+          try {
+            await courseRequest(c.id, { action: "validate" }, session.token);
+            return c.id;
+          } catch (e) {
+            if (e instanceof CourseAccessError && e.code === "session_invalid")
+              clearCourseSession(c.id);
+            return null;
+          }
+        }),
+      );
+      if (alive) setUnlocked(results.filter((id): id is string => !!id));
+    }
+    void check();
+    const timer = window.setInterval(() => void check(), 30000);
+    const changed = () => void check();
+    window.addEventListener("storage", changed);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+      window.removeEventListener("storage", changed);
+    };
+  }, []);
   useEffect(() => {
     if (supabase)
       void supabase
@@ -15,7 +53,10 @@ export function Catalogue() {
         .eq("visible", true)
         .order("display_order")
         .then(({ data }) => {
-          if (data) setCourses(data);
+          if (data)
+            setCourses(
+              phaseCourses.map((c) => data.find((row) => row.id === c.id) || c),
+            );
         });
   }, []);
   return (
@@ -36,6 +77,28 @@ export function Catalogue() {
           />
         </label>
       </div>
+      <p className="mt-4 text-sm text-muted">
+        Enter the course password provided by your instructor.
+      </p>
+      {!!unlocked.length && (
+        <button
+          className="btn btn-secondary mt-4"
+          onClick={async () => {
+            try {
+              await lockAllCourses();
+              setUnlocked([]);
+              setStatus("All courses on this device are locked.");
+            } catch (e) {
+              setStatus((e as Error).message);
+            }
+          }}
+        >
+          Lock all courses on this device
+        </button>
+      )}
+      <p role="status" className="mt-2 text-sm">
+        {status}
+      </p>
       {Array.from(new Set(courses.map((c) => c.program))).map((program) => (
         <div className="mt-9" key={program}>
           <h3 className="mb-4 border-b border-line pb-3 text-lg font-bold text-navy">
@@ -57,12 +120,17 @@ export function Catalogue() {
                   <p className="mb-6 mt-2 text-sm text-muted">{c.summary}</p>
                   <Link
                     className="mt-auto inline-flex items-center gap-2 font-bold text-teal-deep"
-                    href={"/student/#" + c.id}
+                    href={"/courses/" + c.id}
                   >
-                    Open course <ArrowUpRight size={17} />
+                    {unlocked.includes(c.id)
+                      ? "Continue Learning"
+                      : "Unlock Course"}{" "}
+                    <ArrowUpRight size={17} />
                   </Link>
                   <span className="mt-2 text-xs text-muted">
-                    Assigned student access required
+                    {unlocked.includes(c.id)
+                      ? "Course session verified"
+                      : "Course password required"}
                   </span>
                 </article>
               ))}

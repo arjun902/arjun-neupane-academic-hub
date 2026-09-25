@@ -76,7 +76,7 @@ for (const file of outputFiles) {
   if (/\.(js|html|json|txt)$/.test(file)) {
     const body = readFileSync(file, "utf8");
     if (
-      /\/resources\/bca|file-handling-questions-with-solutions\.pdf|SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*["'][^"']{15}|sb_secret_[A-Za-z0-9_-]+/.test(
+      /\/resources\/bca|file-handling-questions-with-solutions\.pdf|SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*["'][^"']{15}|sb_secret_[A-Za-z0-9_-]+|\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-f]{64}/.test(
         body,
       )
     )
@@ -96,9 +96,36 @@ for (const file of outputFiles) {
 }
 if (publicResourceFiles.length)
   failures.push("Teaching PDFs must not be stored in public/resources");
-for (const route of ["", "courses", "login", "student", "admin"])
+for (const route of [
+  "",
+  "courses",
+  "login",
+  "student",
+  "admin",
+  "instructor-login",
+  ...[
+    "bca-digital-logic",
+    "bca-c-programming",
+    "csit-compiler-design",
+    "csit-cryptography",
+    "csit-discrete-mathematics",
+    "csit-numerical-methods",
+  ].map((c) => "courses/" + c),
+])
   if (!existsSync(join(outputRoot, route, "index.html")))
     failures.push(`Missing refresh-safe route: ${route}`);
+
+for (const file of htmlFiles) {
+  const html = readFileSync(file, "utf8");
+  if (
+    /Receive your individual login|Sign in to find the courses assigned|Student Login/.test(
+      html,
+    )
+  )
+    failures.push(
+      `Outdated student access instructions: ${relative(outputRoot, file)}`,
+    );
+}
 
 if (failures.length) {
   console.error(`Export verification failed with ${failures.length} issue(s):`);

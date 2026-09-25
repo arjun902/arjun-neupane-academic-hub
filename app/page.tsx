@@ -18,10 +18,10 @@ export default function Home() {
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link className="btn btn-primary" href="/courses">
-                Explore Courses
+                Access My Courses
               </Link>
-              <Link className="btn btn-secondary" href="/login">
-                Student Login
+              <Link className="btn btn-secondary" href="/instructor-login">
+                Instructor Login
               </Link>
             </div>
           </div>
@@ -33,7 +33,7 @@ export default function Home() {
               Available beyond it.
             </h2>
             <p className="mt-3 text-sm text-muted">
-              Find your assigned resources, save what matters, and pick up where
+              Find your course resources, save what matters, and pick up where
               you left off.
             </p>
           </aside>
@@ -59,15 +59,18 @@ export default function Home() {
           <div>
             <p className="eyebrow">Getting started</p>
             <h2 className="text-2xl font-bold text-navy">
-              Access, personally assigned.
+              Choose. Unlock. Learn.
             </h2>
             <ol className="mt-4 list-decimal space-y-3 pl-5 text-muted">
-              <li>Receive your individual login from your instructor.</li>
-              <li>Set a new password on your first sign-in.</li>
-              <li>Open the courses assigned to your account.</li>
+              <li>Select your course from the catalogue.</li>
+              <li>Enter the course password provided by your instructor.</li>
+              <li>
+                Open the published notes, practical work and revision materials.
+              </li>
             </ol>
             <p className="mt-4 text-sm text-muted">
-              Need access or a password reset? Contact your instructor directly.
+              No registration or email is needed. Need the course password?
+              Contact your instructor directly.
             </p>
           </div>
         </div>

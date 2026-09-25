@@ -20,14 +20,14 @@ export function SiteFooter() {
             title="For students"
             links={[
               ["Courses", "/courses"],
-              ["Student Dashboard", "/student"],
+              ["Access My Courses", "/courses"],
             ]}
           />
           <FooterGroup
             title="Explore"
             links={[
               ["About the Instructor", "/about"],
-              ["Student Login", "/login"],
+              ["Instructor Login", "/instructor-login"],
             ]}
           />
           <FooterGroup
@@ -36,7 +36,7 @@ export function SiteFooter() {
               ["LinkedIn", profile.linkedinUrl],
               ["GitHub", profile.githubUrl],
               [
-                contactEmail || "Contact form",
+                contactEmail || "Contact your instructor",
                 contactEmail ? `mailto:${contactEmail}` : "/contact",
               ],
               ["Kathmandu, Nepal", "/contact"],

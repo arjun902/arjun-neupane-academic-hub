@@ -8,9 +8,8 @@ export default function Contact() {
         <p className="eyebrow">Instructor assistance</p>
         <h1 className="h2">Get in touch</h1>
         <p className="mt-5 text-muted">
-          For a new account, a password reset, or a change to your course
-          access, contact Er. Arjun Neupane through your established class
-          channel.
+          Need a course password or help accessing materials? Contact Er. Arjun
+          Neupane through your established class channel or the links below.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           {email && (
@@ -36,8 +35,8 @@ export default function Contact() {
           </a>
         </div>
         <p className="mt-5 text-sm text-muted">
-          Never share your current password. Your instructor can issue a new
-          temporary password if needed.
+          Tell your instructor which course you need. No student account or
+          email registration is required.
         </p>
       </section>
     </main>

@@ -7,7 +7,7 @@ export default function Courses() {
         <p className="eyebrow">Course catalogue</p>
         <h1 className="h2">Learn with purpose.</h1>
         <p className="mt-3 text-muted">
-          Browse the courses. Sign in for your assigned learning materials.
+          Choose your course and enter the password provided by your instructor.
         </p>
       </div>
       <Catalogue />
