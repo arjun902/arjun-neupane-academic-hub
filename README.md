@@ -1,3 +1,9 @@
+# September 2026: Open Academic Hub update
+
+Student login has been removed from public learning routes. **Start with [Open-access deployment](docs/OPEN_ACCESS_DEPLOYMENT.md)** for the required Supabase migration and GitHub Pages steps. See [Design blueprint](docs/ACADEMIC_DESIGN_BLUEPRINT.md) and [Verification](docs/OPEN_ACCESS_VERIFICATION.md). The earlier documentation below describes the previous account-based portal.
+
+---
+
 ﻿# Arjun Neupane | Academic Hub
 
 Phase-one academic website and private learning portal for Er. Arjun Neupane. The existing Next.js, TypeScript and Tailwind frontend is retained. Supabase Auth, Postgres row-level security (RLS), private Storage and a server-side Edge Function enforce access. GitHub Pages hosts only the static frontend.
