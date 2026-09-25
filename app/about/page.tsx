@@ -11,8 +11,8 @@ export default function About() {
           <p className="mt-5 max-w-2xl text-lg text-muted">{profile.summary}</p>
           <p className="mt-4 text-muted">
             This academic hub brings course materials into one organised space
-            for TU BCA and BSc CSIT students. Access to teaching resources is
-            personally assigned by the instructor.
+            for TU BCA and BSc CSIT students. Published teaching resources are
+            open to everyone without an account.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link className="btn btn-primary" href="/courses">

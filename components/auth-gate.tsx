@@ -187,7 +187,7 @@ export function AuthGate({
     return (
       <main className="site-container grid min-h-[55vh] place-items-center py-12">
         <section className="card max-w-lg">
-          <p className="eyebrow">Student learning portal</p>
+          <p className="eyebrow">Staff administration</p>
           <h1 className="h2">
             {state === "unconfigured"
               ? "Portal unavailable"
@@ -206,12 +206,12 @@ export function AuthGate({
                 ? "Your learning space is closed while sign-out completes."
                 : state === "denied"
                   ? "Your account is suspended, expired, or not permitted here. Ask your instructor for assistance."
-                  : "Sign in with your individual account to open your assigned courses."}
+                  : "Sign in with your staff account to manage courses and materials."}
           </p>
           <p role="status">{message}</p>
           {state !== "signing-out" && state !== "signout-error" && (
-            <Link className="btn btn-primary" href="/login">
-              Student Login
+            <Link className="btn btn-primary" href="/admin/login">
+              Staff sign-in
             </Link>
           )}
           {profile && (

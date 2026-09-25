@@ -1,2 +1,17 @@
-import Link from 'next/link';
-export default function Grading(){return <main className="site-container py-16"><h1 className="h2">Student learning portal</h1><p className="my-4">Find your assigned learning materials in the student portal. Online grading and submissions are not part of this portal.</p><Link className="btn btn-primary" href="/student">Open portal</Link></main>;}
+import Link from "next/link";
+export default function Page() {
+  return (
+    <main id="main-content" className="site-container py-16">
+      <p className="eyebrow">Assessment information</p>
+      <h1 className="h2">Coursework and assessment</h1>
+      <p className="my-5 text-muted">
+        Published assignment briefs and practice materials are available in the
+        course collection. For individual grades or feedback, contact your
+        instructor.
+      </p>
+      <Link href="/courses" className="btn btn-primary">
+        Browse courses
+      </Link>
+    </main>
+  );
+}

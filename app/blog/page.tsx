@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function BlogPage() {
   return (
-    <main>
+    <main id="main-content">
       <PageHero breadcrumb="Home / Blog" title="Study Guides and Article Topics">
         Browse topics drawn from course concepts, project planning, academic writing, AI, and quantum computing.
       </PageHero>

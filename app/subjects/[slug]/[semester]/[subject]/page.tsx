@@ -1,5 +1,27 @@
-import { allOfferings } from '@/lib/academics';
-import Link from 'next/link';
-export const metadata={title:'Course resources moved',robots:{index:false,follow:false}};
-export function generateStaticParams(){return allOfferings.map(o=>({slug:o.programSlug,semester:'semester-'+o.semesterNumber,subject:o.slug}));}
-export default function LegacyCourse(){return <main className="site-container py-16"><h1 className="h2">Your learning materials have moved</h1><p className="my-5">Sign in to find the courses assigned to your account.</p><Link className="btn btn-primary" href="/student">Open student portal</Link></main>;}
+import { allOfferings } from "@/lib/academics";
+import { phaseCourses } from "@/lib/portal";
+import { PublicRedirect } from "@/components/public-redirect";
+export const metadata = {
+  title: "Open course resources",
+  robots: { index: false, follow: true },
+};
+export function generateStaticParams() {
+  return allOfferings.map((o) => ({
+    slug: o.programSlug,
+    semester: "semester-" + o.semesterNumber,
+    subject: o.slug,
+  }));
+}
+export default async function LegacyCourse({
+  params,
+}: {
+  params: Promise<{ slug: string; subject: string }>;
+}) {
+  const { slug, subject } = await params;
+  const id = `${slug === "bsc-csit" ? "csit" : slug}-${subject}`;
+  return (
+    <PublicRedirect
+      to={phaseCourses.some((c) => c.id === id) ? `/courses/${id}` : "/courses"}
+    />
+  );
+}

@@ -20,14 +20,15 @@ export function SiteFooter() {
             title="For students"
             links={[
               ["Courses", "/courses"],
-              ["Student Dashboard", "/student"],
+              ["Learning resources", "/student"],
             ]}
           />
           <FooterGroup
             title="Explore"
             links={[
               ["About the Instructor", "/about"],
-              ["Student Login", "/login"],
+              ["Research", "/research"],
+              ["Staff administration", "/admin"],
             ]}
           />
           <FooterGroup

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function WorkshopsPage() {
   return (
-    <main>
+    <main id="main-content">
       <PageHero
         breadcrumb="Home / Workshops"
         title="Workshops and Training"

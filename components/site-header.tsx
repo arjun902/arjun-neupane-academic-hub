@@ -1,103 +1,98 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogIn, Menu, X } from "lucide-react";
-import { useState } from "react";
-const navItems = [
+import { Menu, X, ArrowUpRight } from "lucide-react";
+import { useEffect, useState } from "react";
+const items = [
   ["Home", "/"],
-  ["Courses", "/courses"],
-  ["About the Instructor", "/about"],
+  ["Teaching", "/courses"],
+  ["Research", "/research"],
+  ["About", "/about"],
+  ["Contact", "/contact"],
 ] as const;
-
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
+  useEffect(() => setOpen(false), [pathname]);
+  const active = (url: string) =>
+    url === "/"
+      ? pathname === "/"
+      : pathname.startsWith(url) ||
+        (url === "/courses" &&
+          (pathname.startsWith("/student") ||
+            pathname.startsWith("/subjects")));
   return (
-    <header className="sticky top-0 z-50 border-b border-line/80 bg-white/95 backdrop-blur-xl">
-      <div className="site-container flex h-[76px] items-center justify-between gap-3 lg:justify-between lg:gap-5">
+    <header className="sticky top-0 z-50 border-b border-line bg-[#f8f7f3]/95 backdrop-blur-md">
+      <div className="site-container flex h-20 items-center justify-between gap-4">
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-3"
-          aria-label="Er. Arjun Neupane home"
+          aria-label="Arjun Neupane home"
+          className="flex items-center gap-3"
         >
-          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-navy to-teal font-extrabold text-white">
-            AN
+          <span className="border-r border-line pr-3 font-serif text-3xl text-navy">
+            AN<span className="text-gold">.</span>
           </span>
-          <span className="leading-tight">
-            <strong className="block text-sm text-ink">Arjun Neupane</strong>
-            <span className="block text-xs text-muted">Academic Hub</span>
+          <span>
+            <strong className="block text-sm text-navy">Arjun Neupane</strong>
+            <span className="text-xs text-muted">
+              Teaching · Research · Open resources
+            </span>
           </span>
         </Link>
-
         <nav
-          className="hidden items-center gap-0.5 lg:flex"
           aria-label="Main navigation"
+          className="hidden items-center gap-6 lg:flex"
         >
-          {navItems.map(([label, href]) => {
-            const active =
-              href === "/" ? pathname === "/" : pathname.startsWith(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`rounded-lg px-3 py-2 text-sm font-bold transition ${
-                  active
-                    ? "bg-teal/10 text-teal-deep"
-                    : "text-slate-700 hover:bg-teal/10 hover:text-teal-deep"
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <Link href="/login" className="btn btn-primary hidden lg:inline-flex">
-            <LogIn size={18} />
-            Login
-          </Link>
-          <button
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-line bg-white text-navy lg:hidden"
-            type="button"
-            aria-label="Open menu"
-            aria-expanded={open}
-            onClick={() => setOpen((value) => !value)}
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
-      </div>
-
-      {open ? (
-        <nav
-          className="border-t border-line bg-white px-4 py-3 shadow-soft lg:hidden"
-          aria-label="Mobile navigation"
-        >
-          <div className="mx-auto grid max-w-site gap-1">
-            {navItems.map(([label, href]) => (
-              <Link
-                key={href}
-                href={href}
-                className="rounded-lg px-3 py-3 text-sm font-bold text-slate-700 hover:bg-teal/10 hover:text-teal-deep"
-                onClick={() => setOpen(false)}
-              >
-                {label}
-              </Link>
-            ))}
+          {items.map(([label, url]) => (
             <Link
-              href="/login"
-              className="btn btn-primary mt-2"
-              onClick={() => setOpen(false)}
+              key={url}
+              href={url}
+              aria-current={active(url) ? "page" : undefined}
+              className={
+                active(url)
+                  ? "border-b-2 border-teal-deep py-2 text-sm font-bold text-teal-deep"
+                  : "py-2 text-sm text-muted hover:text-navy"
+              }
             >
-              <LogIn size={18} />
-              Login
+              {label}
             </Link>
-          </div>
+          ))}
         </nav>
-      ) : null}
+        <Link href="/courses" className="btn btn-primary hidden lg:inline-flex">
+          Explore courses <ArrowUpRight size={16} />
+        </Link>
+        <button
+          type="button"
+          aria-controls="mobile-navigation"
+          aria-expanded={open}
+          aria-label={open ? "Close navigation" : "Open navigation"}
+          onClick={() => setOpen(!open)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOpen(false);
+          }}
+          className="btn btn-secondary lg:hidden"
+        >
+          {open ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+      <nav
+        id="mobile-navigation"
+        aria-label="Mobile navigation"
+        hidden={!open}
+        className="border-t border-line bg-white px-4 py-3 lg:hidden"
+      >
+        {items.map(([label, url]) => (
+          <Link
+            key={url}
+            href={url}
+            onClick={() => setOpen(false)}
+            aria-current={active(url) ? "page" : undefined}
+            className="block rounded px-4 py-3 font-semibold text-navy"
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }

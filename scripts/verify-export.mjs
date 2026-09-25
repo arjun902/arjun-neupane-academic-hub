@@ -96,7 +96,7 @@ for (const file of outputFiles) {
 }
 if (publicResourceFiles.length)
   failures.push("Teaching PDFs must not be stored in public/resources");
-for (const route of ["", "courses", "login", "student", "admin"])
+for (const route of ["", "courses", "login", "student", "admin", "admin/login", "courses/bca-digital-logic", "courses/bca-c-programming", "courses/csit-compiler-design", "courses/csit-cryptography", "courses/csit-discrete-mathematics", "courses/csit-numerical-methods"])
   if (!existsSync(join(outputRoot, route, "index.html")))
     failures.push(`Missing refresh-safe route: ${route}`);
 

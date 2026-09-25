@@ -319,7 +319,8 @@ function AdminPanel() {
       <p className="eyebrow">Instructor workspace</p>
       <h1 className="h2">Academic administration</h1>
       <p className="mt-2 text-muted">
-        Manage access, organise resources, and publish when you are ready.
+        Organise resources and publish when you are ready. Released, published
+        materials in visible courses are open to everyone without sign-in.
       </p>
       <div className="mt-7 grid gap-6 lg:grid-cols-[210px_1fr]">
         <nav
