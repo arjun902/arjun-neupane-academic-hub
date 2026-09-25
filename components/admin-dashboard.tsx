@@ -324,7 +324,8 @@ function AdminPanel() {
       <p className="eyebrow">Instructor workspace</p>
       <h1 className="h2">Academic administration</h1>
       <p className="mt-2 text-muted">
-        Manage access, organise resources, and publish when you are ready.
+        Manage private backend resources. Public website content is maintained in
+        the repository content files and published through GitHub Pages.
       </p>
       <div className="mt-7 grid gap-6 lg:grid-cols-[210px_1fr]">
         <nav

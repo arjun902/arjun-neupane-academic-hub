@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "verify:export": "node scripts/verify-export.mjs",
     "check": "npm run typecheck && npm audit --omit=dev --audit-level=high",
-    "test:policies": "node scripts/test-policies.mjs && node scripts/test-policies.mjs --legacy",
+    "test:policies": "node scripts/test-policies.mjs && node scripts/test-policies.mjs --legacy && node scripts/test-public-policies.mjs && node scripts/test-public-policies.mjs --legacy",
     "build:pages": "node scripts/build-pages.mjs",
     "typecheck:edge": "tsc -p supabase/functions/tsconfig.json",
     "doctor": "node scripts/doctor.mjs",

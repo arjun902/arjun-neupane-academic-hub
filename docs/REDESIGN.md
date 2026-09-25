@@ -53,3 +53,7 @@ Responsive layouts, keyboard controls, semantic headings, focus styles, reduced 
 - Retired: unused public password/catalogue/dashboard UI, old duplicate academic/profile datasets, decorative hero/cards and unused contact/grading components. Their history remains in Git. Private admin authorization and backend policies remain in place.
 
 See [CONTENT_MANAGEMENT.md](CONTENT_MANAGEMENT.md) for editing examples and [SETUP.md](SETUP.md) for deployment.
+
+## Concurrent GitHub uploads
+
+Remote commits `c66c527` and `aff2996` arrived during implementation. They are retained through a normal merge, with no force push. Their open-access intent is implemented by the static redesign. `/admin/login` remains a compatibility alias for the existing guarded staff login. Uploaded design documents and preview images are retained and marked historical. Their Supabase public-learning SQL and tests are preserved in `supabase/optional-public-learning/` as explicit opt-in infrastructure; deploying this static site does not change existing private backend access. The optional policy tests run after both retained private migrations.
