@@ -562,7 +562,7 @@ h3 {
   width: 260px;
   border-radius: 4px;
 }
-.profile-layout .prose h2:first-child {
+.profile-layout .prose > h2:first-child {
   margin-top: 0;
 }
 @media (max-width: 1100px) {

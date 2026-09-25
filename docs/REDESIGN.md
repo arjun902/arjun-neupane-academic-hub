@@ -33,6 +33,8 @@ Compatibility routes: `/about`, `/subjects`, `/courses`, six `/courses/{id}` pag
 
 ## Owner verification still needed
 
+Update: the owner subsequently supplied a résumé and LinkedIn profile. Education, dated roles, projects, certifications and contact email are now incorporated; see [PROFILE_SOURCES.md](PROFILE_SOURCES.md). The original launch gaps below are historical and are superseded by that source record where resolved.
+
 - Current institutional titles, dates and education details beyond the existing profile statements.
 - Official semester mappings and syllabus versions. Current groupings are explicitly independent collections, not an official curriculum.
 - Publication records, research project evidence, CV, Scholar/ORCID and a public email address.

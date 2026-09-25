@@ -4,6 +4,8 @@ Edit one record in `content/`; pages, cards and search read the same records. Ru
 
 ## Profile and images
 
+The profile now includes structured degree/institution/period records, dated teaching and engineering roles, skills, awards and certifications. Shared thesis/project records live in `content/projects.ts`; edit them there to update all related pages. Source reconciliation and the owner's confirmed institution/award names are documented in [PROFILE_SOURCES.md](PROFILE_SOURCES.md).
+
 Update name, summary, education, experience and verified external links in `content/profile.ts`. Do not infer dates, degree affiliations or current appointments. Update `content/site.ts` for navigation and the production URL. The optimized photo is `public/assets/arjun-neupane-profile.webp`; keep its original aspect ratio. The original PNG is retained as a source asset. Add a CV or academic profile only when a real file/link is supplied and reviewed.
 
 ## Program and semester

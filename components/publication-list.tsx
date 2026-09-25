@@ -23,6 +23,7 @@ export function PublicationList({ items }: { items: Publication[] }) {
       p.year +
       "). " +
       p.title +
+      (p.type === "Master's thesis" ? " [Master's thesis]" : "") +
       ". " +
       p.venue +
       (p.volume ? ", " + p.volume : "") +
@@ -73,7 +74,8 @@ export function PublicationList({ items }: { items: Publication[] }) {
         ))}
       </div>
       <p role="status" className="my-4">
-        {message || shown.length + " publications"}
+        {message ||
+          shown.length + " scholarly record" + (shown.length === 1 ? "" : "s")}
       </p>
       {fallback && (
         <textarea
@@ -126,7 +128,7 @@ export function PublicationList({ items }: { items: Publication[] }) {
           </li>
         ))}
       </ol>
-      {!shown.length && <p>No publications match these filters.</p>}
+      {!shown.length && <p>No scholarly records match these filters.</p>}
     </>
   );
 }

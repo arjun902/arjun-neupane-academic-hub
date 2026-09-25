@@ -3,7 +3,7 @@ import Image from "next/image";
 import { profile } from "@/content/profile";
 import { site, asset } from "@/content/site";
 import { programmes } from "@/content/programmes";
-import { researchInterests } from "@/content/research";
+import { researchInterests, researchProjects } from "@/content/research";
 import { notices } from "@/content/notices";
 import { publications } from "@/content/publications";
 import {
@@ -80,18 +80,12 @@ export default function Home() {
       </section>
       <div className="site-container">
         <div className="snapshot">
-          <div>
-            <strong>Academic practice</strong>
-            <p>Computing, communication systems and engineering education.</p>
-          </div>
-          <div>
-            <strong>Teaching & mentoring</strong>
-            <p>BCA, BSc CSIT and BE learning collections.</p>
-          </div>
-          <div>
-            <strong>Research interests</strong>
-            <p>Quantum computing, AI, networks and connected systems.</p>
-          </div>
+          {profile.snapshot.map((item) => (
+            <div key={item.title}>
+              <strong>{item.title}</strong>
+              <p>{item.description}</p>
+            </div>
+          ))}
         </div>
       </div>
       <section className="site-container section">
@@ -132,6 +126,28 @@ export default function Home() {
               Browse publications →
             </Link>
           )}
+        </div>
+      </section>
+      <section className="site-container section">
+        <SectionHeading
+          label="Selected work"
+          title="From quantum information to hardware."
+          href="/research#projects"
+          linkText="Explore projects"
+        />
+        <div className="grid-three">
+          {researchProjects.map((project) => (
+            <article className="card" key={project.title}>
+              <p className="eyebrow">
+                {project.period} · {project.status}
+              </p>
+              <h3>{project.title}</h3>
+              <p>{project.description}</p>
+              <Link className="text-link" href="/research#projects">
+                Read more →
+              </Link>
+            </article>
+          ))}
         </div>
       </section>
       <section className="site-container section">

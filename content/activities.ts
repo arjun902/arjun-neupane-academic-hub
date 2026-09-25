@@ -1,5 +1,14 @@
 import type { Activity } from "./types";
+import { spaceSchoolProject } from "./projects";
 export const activities: Activity[] = [
+  {
+    title: spaceSchoolProject.title,
+    category: "International training",
+    status: "completed",
+    date: "2020-01",
+    dateLabel: spaceSchoolProject.period,
+    description: `${spaceSchoolProject.description} ${spaceSchoolProject.institution}.`,
+  },
   {
     title: "IoT Prototype Lab",
     category: "Workshop",

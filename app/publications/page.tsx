@@ -4,15 +4,15 @@ import { publications } from "@/content/publications";
 import { pageMetadata } from "@/lib/metadata";
 export const metadata = pageMetadata(
   "Publications",
-  "Verified bibliographic records and scholarly outputs by Arjun Neupane.",
+  "Master's thesis and verified scholarly records by Arjun Neupane.",
   "/publications",
 );
 export default function Publications() {
   return (
     <PageShell
       eyebrow="Scholarly work"
-      title="Publications"
-      description="A record of scholarly outputs, with source links and citation details when available."
+      title="Thesis & publications"
+      description="Scholarly work with its document type clearly identified. The MSc thesis is listed below; no journal or conference publication records have been supplied."
     >
       {publications.length ? (
         <PublicationList items={publications} />

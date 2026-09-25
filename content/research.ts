@@ -1,19 +1,20 @@
-import type { ResearchInterest, ResearchProject } from "./types";
+import type { ResearchInterest } from "./types";
+export { researchProjects } from "./projects";
 export const researchInterests: ResearchInterest[] = [
   {
     title: "Quantum computing",
     description:
-      "Foundational quantum concepts, circuit simulation and approachable undergraduate learning.",
+      "Quantum state fidelity and entanglement swapping, the subject of his MSc thesis at Pulchowk Campus.",
   },
   {
-    title: "Artificial intelligence",
+    title: "FPGA & digital system design",
     description:
-      "Applied machine learning projects with clear questions, suitable data and measurable evaluation.",
+      "Processor architecture, VHDL and FPGA implementation, grounded in a custom 16-bit microprocessor project.",
   },
   {
     title: "Cybersecurity",
     description:
-      "Understanding system risks, defensive controls and responsible security practice.",
+      "Cryptography and defensive security concepts, connected to his CSIT teaching and practical learning materials.",
   },
   {
     title: "Computer networks",
@@ -21,9 +22,14 @@ export const researchInterests: ResearchInterest[] = [
       "Network design, configuration, troubleshooting and performance analysis.",
   },
   {
-    title: "Internet of Things",
+    title: "Space & embedded systems",
     description:
-      "Sensor-based prototypes that connect embedded devices with useful data and dashboards.",
+      "Subsystem design and hardware prototyping, informed by stratospheric balloon payload work at Winter Space School.",
+  },
+  {
+    title: "Machine learning",
+    description:
+      "Foundations of machine learning and their use in computing education and applied projects.",
   },
   {
     title: "Computing education",
@@ -31,5 +37,3 @@ export const researchInterests: ResearchInterest[] = [
       "Practical tools and teaching approaches that support learning, assessment and feedback.",
   },
 ];
-// Add only owner-verified projects; interests above are not claims of published results.
-export const researchProjects: ResearchProject[] = [];

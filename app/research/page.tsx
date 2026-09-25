@@ -4,7 +4,7 @@ import { PageShell, SectionHeading } from "@/components/academic";
 import { pageMetadata } from "@/lib/metadata";
 export const metadata = pageMetadata(
   "Research & supervision",
-  "Research interests in quantum computing, artificial intelligence, cybersecurity, networks, IoT and computing education.",
+  "Quantum information research, FPGA processor design, space-system projects and student supervision.",
   "/research",
 );
 export default function Research() {
@@ -24,11 +24,17 @@ export default function Research() {
         ))}
       </div>
       <section id="projects" className="section">
-        <SectionHeading title="Projects & student supervision" />
+        <SectionHeading title="Selected thesis & engineering projects" />
         {researchProjects.map((p) => (
-          <article className="card" key={p.title}>
+          <article className="card mb-6" key={p.title}>
             <p className="eyebrow">{p.status}</p>
             <h3>{p.title}</h3>
+            {p.period && (
+              <p className="text-sm">
+                {p.period}
+                {p.institution ? ` · ${p.institution}` : ""}
+              </p>
+            )}
             <p>{p.description}</p>
             {p.url && (
               <a className="text-link" href={p.url}>
@@ -38,6 +44,7 @@ export default function Research() {
           </article>
         ))}
         <div className="prose">
+          <h2>Student supervision & mentoring</h2>
           <p>
             Student support includes shaping a project question, choosing an
             achievable scope, planning implementation and evaluating results. A

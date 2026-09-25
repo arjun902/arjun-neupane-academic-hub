@@ -5,12 +5,37 @@ export interface SiteConfig {
   navigation: readonly (readonly [string, string])[];
 }
 export interface EducationRecord {
-  description: string;
+  degree: string;
+  institution: string;
+  period: string;
+  distinction?: string;
+  project?: string;
 }
 export interface ExperienceRecord {
   institution: string;
   role: string;
   focus: string;
+  period: string;
+  location: string;
+  category: "Teaching" | "Engineering";
+  current: boolean;
+  subjects?: string[];
+}
+export interface Certification {
+  title: string;
+  issuer: string;
+  issued: string;
+  credentialId: string;
+  url?: string;
+}
+export interface SkillGroup {
+  title: string;
+  items: string[];
+}
+export interface Achievement {
+  title: string;
+  year: string;
+  description: string;
 }
 export interface ExternalProfile {
   label: string;
@@ -21,10 +46,15 @@ export interface Profile {
   headline: string;
   location: string;
   summary: string;
+  email: string;
   photo: string;
   education: EducationRecord[];
   experience: ExperienceRecord[];
   links: ExternalProfile[];
+  certifications: Certification[];
+  skills: SkillGroup[];
+  achievements: Achievement[];
+  snapshot: { title: string; description: string }[];
 }
 export interface Semester {
   number: number;
@@ -82,6 +112,8 @@ export interface ResearchProject {
   title: string;
   description: string;
   status: string;
+  period?: string;
+  institution?: string;
   url?: string;
 }
 export interface Publication {
@@ -96,7 +128,12 @@ export interface Publication {
   doi?: string;
   url?: string;
   pdfUrl?: string;
-  type: "Journal article" | "Conference paper" | "Book chapter" | "Preprint";
+  type:
+    | "Journal article"
+    | "Conference paper"
+    | "Book chapter"
+    | "Preprint"
+    | "Master's thesis";
   topics: string[];
 }
 export interface Notice {
@@ -112,5 +149,6 @@ export interface Activity {
   category: string;
   description: string;
   date?: string;
+  dateLabel?: string;
   status: "offering" | "completed" | "scheduled";
 }

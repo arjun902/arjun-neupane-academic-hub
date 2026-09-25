@@ -15,9 +15,16 @@ export default function Contact() {
     >
       <div className="grid-two">
         <section>
-          <h2 className="text-3xl">Professional profiles</h2>
+          <h2 className="text-3xl">Professional contact</h2>
           <p className="lead">{profile.location}</p>
           <div className="mt-6">
+            <a href={`mailto:${profile.email}`} className="resource-card">
+              <span>
+                <span className="block text-sm text-muted">Email</span>
+                <span className="font-semibold break-all">{profile.email}</span>
+              </span>
+              <span aria-hidden="true">↗</span>
+            </a>
             {profile.links.map((l) => (
               <a key={l.url} href={l.url} className="resource-card">
                 <span className="font-semibold">{l.label}</span>
@@ -35,8 +42,8 @@ export default function Contact() {
             objectives.
           </p>
           <p>
-            Use LinkedIn for professional enquiries. Do not share student grades
-            or personal records in public repository issues.
+            Use email or LinkedIn for professional enquiries. Do not share
+            student grades or personal records in public repository issues.
           </p>
         </section>
       </div>
