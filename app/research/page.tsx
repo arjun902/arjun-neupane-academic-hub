@@ -1,61 +1,82 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-import { Atom, BrainCircuit, Handshake, Newspaper, Router, ShieldCheck, Wrench, Cpu } from "lucide-react";
-import { IconCard } from "@/components/cards";
-import { PageHero } from "@/components/page-hero";
-
-export const metadata: Metadata = {
-  title: "Research and Projects",
-  description: "Research interests, student project supervision, and academic writing guidance from Er. Arjun Neupane."
-};
-
-export default function ResearchPage() {
+import { researchInterests, researchProjects } from "@/content/research";
+import { PageShell, SectionHeading } from "@/components/academic";
+import { pageMetadata } from "@/lib/metadata";
+export const metadata = pageMetadata(
+  "Research & supervision",
+  "Research interests in quantum computing, artificial intelligence, cybersecurity, networks, IoT and computing education.",
+  "/research",
+);
+export default function Research() {
   return (
-    <main>
-      <PageHero
-        breadcrumb="Home / Research"
-        title="Research and Projects"
-        actions={
-          <>
-            <Link className="btn btn-primary" href="/contact?purpose=Research"><Handshake size={18} /> Discuss a project</Link>
-            <Link className="btn btn-secondary" href="/blog"><Newspaper size={18} /> Read research articles</Link>
-          </>
-        }
-      >
-        I study computing topics through practical experiments and undergraduate projects. I also supervise students
-        from the initial research question through the written report and presentation.
-      </PageHero>
-      <section className="section">
-        <div className="site-container">
-          <p className="eyebrow">Research interests</p>
-          <h2 className="h2 mb-8">Research areas for student projects.</h2>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            <IconCard icon={Atom} title="Quantum Computing">I focus on introductory concepts and simulation-based projects that are manageable at undergraduate level.</IconCard>
-            <IconCard icon={BrainCircuit} title="AI and Machine Learning" tone="gold">I guide applied projects that define a clear question, use appropriate data, and report evaluation results.</IconCard>
-            <IconCard icon={ShieldCheck} title="Cybersecurity" tone="plum">Projects examine common risks in applications and networks, then document practical defensive measures.</IconCard>
-            <IconCard icon={Router} title="Computer Networks">My work covers network design, service configuration, troubleshooting, and performance measurement.</IconCard>
-            <IconCard icon={Cpu} title="IoT Systems" tone="gold">Students build sensor-based prototypes and document how data moves from devices to dashboards.</IconCard>
-            <IconCard icon={Wrench} title="Tools for Teaching" tone="plum">I explore simple tools that improve how course materials, assessments, and notices are managed.</IconCard>
-          </div>
+    <PageShell
+      eyebrow="Inquiry & scholarship"
+      title="Questions that connect theory and practice."
+      description="Research interests across computing and engineering, with an emphasis on clear questions, practical investigation and student learning."
+    >
+      <SectionHeading title="Areas of interest" />
+      <div className="research-list">
+        {researchInterests.map((r) => (
+          <article key={r.title}>
+            <h3>{r.title}</h3>
+            <p>{r.description}</p>
+          </article>
+        ))}
+      </div>
+      <section id="projects" className="section">
+        <SectionHeading title="Projects & student supervision" />
+        {researchProjects.map((p) => (
+          <article className="card" key={p.title}>
+            <p className="eyebrow">{p.status}</p>
+            <h3>{p.title}</h3>
+            <p>{p.description}</p>
+            {p.url && (
+              <a className="text-link" href={p.url}>
+                View project →
+              </a>
+            )}
+          </article>
+        ))}
+        <div className="prose">
+          <p>
+            Student support includes shaping a project question, choosing an
+            achievable scope, planning implementation and evaluating results. A
+            useful starting point is a short proposal describing your question,
+            current progress and the kind of feedback you need.
+          </p>
+          <h3>Approach & methods</h3>
+          <p>
+            Match the method to the question: a simulation for a well-defined
+            model, a prototype for a practical idea, or an experiment with
+            explicit comparison criteria. Record assumptions and make the work
+            reproducible.
+          </p>
+          <h3>Writing & presenting</h3>
+          <p>
+            Explain the motivation, distinguish your contribution from prior
+            work and support conclusions with evidence. Prepare to discuss
+            limitations as carefully as results.
+          </p>
+          <Link href="/students#research" className="text-link">
+            Student research checklist →
+          </Link>
         </div>
       </section>
-      <section className="section section-band">
-        <div className="site-container grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            ["Project work", "My project work includes teaching tools, course resource systems, IoT prototypes, and applied computing experiments."],
-            ["Student project supervision", "I help students narrow a topic, plan an evaluation, organise the implementation, and prepare for the viva."],
-            ["Academic papers", "I help students revise abstracts, organise papers, check citations, and prepare a manuscript for submission."],
-            ["Theses and proposals", "I support students in defining a research question, setting a realistic scope, choosing a method, and planning the work."],
-            ["Conference preparation", "I help students prepare presentations and posters, respond to feedback, and explain their work clearly."],
-            ["Research collaboration", "I welcome enquiries from colleges, academic teams, students, and researchers interested in a joint project or training session."]
-          ].map(([title, body]) => (
-            <article className="card" key={title}>
-              <h3 className="mb-2 text-xl font-bold">{title}</h3>
-              <p className="text-muted">{body}</p>
-            </article>
-          ))}
+      <div className="callout">
+        <h2 className="text-2xl">Academic collaboration</h2>
+        <p>
+          For a research or mentoring conversation, share the topic, context,
+          available evidence and a focused proposal.
+        </p>
+        <div className="actions">
+          <Link href="/contact" className="btn btn-secondary">
+            Start a conversation
+          </Link>
+          <Link href="/publications" className="text-link">
+            Publication record →
+          </Link>
         </div>
-      </section>
-    </main>
+      </div>
+    </PageShell>
   );
 }

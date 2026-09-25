@@ -9,7 +9,7 @@ export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl as string, supabaseAnonKey as string, {
       auth: {
         persistSession: true,
-        autoRefreshToken: true
-      }
+        autoRefreshToken: true,
+      },
     })
   : null;

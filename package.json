@@ -16,7 +16,8 @@
     "build:pages": "node scripts/build-pages.mjs",
     "typecheck:edge": "tsc -p supabase/functions/tsconfig.json",
     "doctor": "node scripts/doctor.mjs",
-    "test:supabase:local": "node scripts/test-supabase-local.mjs"
+    "test:supabase:local": "node scripts/test-supabase-local.mjs",
+    "test:content": "node scripts/test-content.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

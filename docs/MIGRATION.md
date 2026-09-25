@@ -1,3 +1,5 @@
+> Historical implementation record. The public course-password model is superseded by the open-access redesign. See [REDESIGN.md](REDESIGN.md) and [SETUP.md](SETUP.md). One reviewed lab handout is now intentionally public; the other historical PDFs remain held.
+
 # Existing content migration
 
 ## Course-password revision (2026-09-24)

@@ -1,17 +1,19 @@
 import type { MetadataRoute } from "next";
-
+import { site } from "@/content/site";
 export const dynamic = "force-static";
-
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arjunneupane.edu.np").replace(/\/$/, "");
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
+  const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/student/", "/grading/", "/login/", ...["admin", "student", "grading", "login"].map((route) => `${basePath}/${route}/`)]
+      disallow: [
+        "/admin/",
+        "/instructor-login/",
+        base + "/admin/",
+        base + "/instructor-login/",
+      ],
     },
-    sitemap: `${siteUrl}/sitemap.xml`
+    sitemap: site.url + "/sitemap.xml",
   };
 }

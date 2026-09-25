@@ -1,107 +1,62 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogIn, Menu, X } from "lucide-react";
-import { useState } from "react";
-const navItems = [
-  ["Home", "/"],
-  ["Courses", "/courses"],
-  ["About the Instructor", "/about"],
-  ["Instructor Login", "/instructor-login"],
-] as const;
-
+import { useRef, useState } from "react";
+import { site } from "@/content/site";
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
+  const toggle = useRef<HTMLButtonElement>(null);
+  const active = (href: string) =>
+    href === "/"
+      ? pathname === "/"
+      : pathname.startsWith(href) ||
+        (href === "/teaching" && pathname.startsWith("/subjects"));
   return (
-    <header className="sticky top-0 z-50 border-b border-line/80 bg-white/95 backdrop-blur-xl">
-      <div className="site-container flex h-[76px] items-center justify-between gap-3 lg:justify-between lg:gap-5">
-        <Link
-          href="/"
-          className="flex min-w-0 items-center gap-3"
-          aria-label="Er. Arjun Neupane home"
-        >
-          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-navy to-teal font-extrabold text-white">
-            AN
-          </span>
-          <span className="leading-tight">
-            <strong className="block text-sm text-ink">Arjun Neupane</strong>
-            <span className="block text-xs text-muted">Academic Hub</span>
+    <header
+      className="academic-header"
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          setOpen(false);
+          toggle.current?.focus();
+        }
+      }}
+    >
+      <div className="site-container header-inner">
+        <Link href="/" className="brand" onClick={() => setOpen(false)}>
+          <span className="monogram">AN.</span>
+          <span>
+            <strong>Arjun Neupane</strong>
+            <small>Teaching · Research · Academic Resources</small>
           </span>
         </Link>
-
+        <button
+          ref={toggle}
+          className="menu-toggle"
+          aria-controls="main-navigation"
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        >
+          {open ? "Close menu" : "Menu"}{" "}
+          <span aria-hidden="true">{open ? "×" : "☰"}</span>
+        </button>
         <nav
-          className="hidden items-center gap-0.5 lg:flex"
+          id="main-navigation"
+          className={`main-nav ${open ? "is-open" : ""}`}
           aria-label="Main navigation"
         >
-          {navItems.map(([label, href]) => {
-            const active =
-              href === "/" ? pathname === "/" : pathname.startsWith(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`rounded-lg px-3 py-2 text-sm font-bold transition ${
-                  active
-                    ? "bg-teal/10 text-teal-deep"
-                    : "text-slate-700 hover:bg-teal/10 hover:text-teal-deep"
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <Link
-            href="/courses"
-            className="btn btn-primary hidden lg:inline-flex"
-          >
-            <LogIn size={18} />
-            Access My Courses
-          </Link>
-          <button
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-line bg-white text-navy lg:hidden"
-            type="button"
-            aria-label="Open menu"
-            aria-expanded={open}
-            onClick={() => setOpen((value) => !value)}
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
-      </div>
-
-      {open ? (
-        <nav
-          className="border-t border-line bg-white px-4 py-3 shadow-soft lg:hidden"
-          aria-label="Mobile navigation"
-        >
-          <div className="mx-auto grid max-w-site gap-1">
-            {navItems.map(([label, href]) => (
-              <Link
-                key={href}
-                href={href}
-                className="rounded-lg px-3 py-3 text-sm font-bold text-slate-700 hover:bg-teal/10 hover:text-teal-deep"
-                onClick={() => setOpen(false)}
-              >
-                {label}
-              </Link>
-            ))}
+          {site.navigation.map(([label, href]) => (
             <Link
-              href="/courses"
-              className="btn btn-primary mt-2"
+              key={href}
+              href={href}
+              aria-current={active(href) ? "page" : undefined}
               onClick={() => setOpen(false)}
             >
-              <LogIn size={18} />
-              Access My Courses
+              {label}
             </Link>
-          </div>
+          ))}
         </nav>
-      ) : null}
+      </div>
     </header>
   );
 }

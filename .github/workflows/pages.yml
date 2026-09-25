@@ -38,6 +38,9 @@ jobs:
       - name: Verify Edge Function types
         run: npm run typecheck:edge
 
+      - name: Verify public academic content
+        run: npm run test:content
+
       - name: Verify database access policies
         run: npm run test:policies
 
@@ -50,8 +53,6 @@ jobs:
           NEXT_PUBLIC_SITE_URL: "https://arjun902.github.io/arjun-neupane-academic-hub"
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_CONTACT_EMAIL: ${{ vars.NEXT_PUBLIC_CONTACT_EMAIL }}
-          NEXT_PUBLIC_CONTACT_PHONE: ${{ vars.NEXT_PUBLIC_CONTACT_PHONE }}
 
       - name: Verify exported links and assets
         run: npm run verify:export

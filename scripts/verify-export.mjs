@@ -22,6 +22,9 @@ const outputFiles = filesWithin(outputRoot);
 const htmlFiles = outputFiles.filter((file) => file.endsWith(".html"));
 const refs = new Set();
 const failures = [];
+const approvedFiles = JSON.parse(
+  readFileSync(new URL("./public-files.json", import.meta.url), "utf8"),
+);
 const publicResourceRoot = join(process.cwd(), "public", "resources");
 const publicResourceFiles = existsSync(publicResourceRoot)
   ? filesWithin(publicResourceRoot).filter((file) => file.endsWith(".pdf"))
@@ -69,14 +72,19 @@ for (const ref of refs) {
 for (const file of outputFiles) {
   const rel = relative(outputRoot, file).replaceAll("\\", "/");
   if (
-    /\.(pdf|zip|docx?|pptx?|map)$/i.test(file) ||
-    /(^|\/)(resources|private-migration|legacy-source)\//.test(rel)
+    (/\.(pdf|zip|docx?|pptx?|map)$/i.test(file) &&
+      !approvedFiles.includes("/" + rel)) ||
+    /(^|\/)(private-migration|legacy-source)\//.test(rel) ||
+    (rel.startsWith("resources/") &&
+      !rel.endsWith(".html") &&
+      !rel.endsWith(".txt") &&
+      !approvedFiles.includes("/" + rel))
   )
     failures.push(`Protected file or source map in export: ${rel}`);
   if (/\.(js|html|json|txt)$/.test(file)) {
     const body = readFileSync(file, "utf8");
     if (
-      /\/resources\/bca|file-handling-questions-with-solutions\.pdf|SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*["'][^"']{15}|sb_secret_[A-Za-z0-9_-]+|\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-f]{64}/.test(
+      /file-handling-questions-with-solutions\.pdf|SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*["'][^"']{15}|sb_secret_[A-Za-z0-9_-]+|\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-f]{64}/.test(
         body,
       )
     )
@@ -94,8 +102,12 @@ for (const file of outputFiles) {
     }
   }
 }
-if (publicResourceFiles.length)
-  failures.push("Teaching PDFs must not be stored in public/resources");
+for (const file of publicResourceFiles) {
+  const path =
+    "/resources/" + relative(publicResourceRoot, file).replaceAll("\\", "/");
+  if (!approvedFiles.includes(path))
+    failures.push(`Unreviewed public file: ${path}`);
+}
 for (const route of [
   "",
   "courses",
@@ -103,6 +115,14 @@ for (const route of [
   "student",
   "admin",
   "instructor-login",
+  "teaching",
+  "profile",
+  "research",
+  "publications",
+  "students",
+  "activities",
+  "contact",
+  "resources",
   ...[
     "bca-digital-logic",
     "bca-c-programming",
@@ -117,6 +137,16 @@ for (const route of [
 
 for (const file of htmlFiles) {
   const html = readFileSync(file, "utf8");
+  const rel = relative(outputRoot, file).replaceAll("\\", "/");
+  if (/Er\.\s*Arjun|Engineer Arjun Neupane/.test(html))
+    failures.push(`Outdated public identity: ${rel}`);
+  if (
+    !/^(admin|instructor-login)\//.test(rel) &&
+    /Enter course password|Unlock course|assigned courses|type="password"/i.test(
+      html,
+    )
+  )
+    failures.push(`Public authentication gate: ${rel}`);
   if (
     /Receive your individual login|Sign in to find the courses assigned|Student Login/.test(
       html,
@@ -134,5 +164,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Verified ${htmlFiles.length} HTML files, ${refs.size} unique links/assets, refresh-safe portal routes, and no protected files/source maps or detected secret values in the export.`,
+  `Verified ${htmlFiles.length} HTML files, ${refs.size} unique links/assets, public academic routes, reviewed document allowlist, and no protected files/source maps or detected secret values in the export.`,
 );

@@ -1,16 +1,1 @@
-import { Catalogue } from "@/components/catalogue";
-export const metadata = { title: "Courses" };
-export default function Courses() {
-  return (
-    <main id="main-content">
-      <div className="site-container pt-10">
-        <p className="eyebrow">Course catalogue</p>
-        <h1 className="h2">Learn with purpose.</h1>
-        <p className="mt-3 text-muted">
-          Choose your course and enter the password provided by your instructor.
-        </p>
-      </div>
-      <Catalogue />
-    </main>
-  );
-}
+export { default, metadata } from "../teaching/page";

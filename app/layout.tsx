@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { CSSProperties } from "react";
+
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -12,13 +12,13 @@ const siteUrl = (
 export const metadata: Metadata = {
   metadataBase: new URL(`${siteUrl}/`),
   title: {
-    default: "Arjun Neupane | Academic Hub",
-    template: "%s | Er. Arjun Neupane",
+    default: "Arjun Neupane | Teaching, Research & Academic Resources",
+    template: "%s | Arjun Neupane",
   },
   description:
-    "Course resources and information about the teaching, research, and workshops of Er. Arjun Neupane in Kathmandu.",
+    "Course resources and information about the teaching, research, and workshops of Arjun Neupane in Kathmandu.",
   keywords: [
-    "Er. Arjun Neupane",
+    "Arjun Neupane",
     "BCA course resources",
     "BSc CSIT course resources",
     "BE Computer Engineering course resources",
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Arjun Neupane | Academic Hub",
     description:
-      "Course resources and information about the teaching and research of Er. Arjun Neupane.",
-    images: [`${siteUrl}/assets/arjun-neupane-profile.png`],
+      "Course resources and information about the teaching and research of Arjun Neupane.",
+    images: [`${siteUrl}/assets/arjun-neupane-profile.webp`],
     type: "website",
   },
 };
@@ -39,12 +39,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
   const isProduction = process.env.NODE_ENV === "production";
-  const bodyStyle = {
-    "--hero-image": `url("${basePath}/assets/academic-tech-hero.png")`,
-  } as CSSProperties;
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -56,7 +51,7 @@ export default function RootLayout({
         ) : null}
         <meta name="referrer" content="strict-origin-when-cross-origin" />
       </head>
-      <body suppressHydrationWarning style={bodyStyle}>
+      <body suppressHydrationWarning>
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>

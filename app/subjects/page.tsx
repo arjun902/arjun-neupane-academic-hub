@@ -1,1 +1,1 @@
-export { default } from '@/app/courses/page';
+export { default, metadata } from "../teaching/page";

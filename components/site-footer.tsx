@@ -1,98 +1,50 @@
 import Link from "next/link";
-import { profile } from "@/lib/data";
-
+import { profile } from "@/content/profile";
 export function SiteFooter() {
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
   return (
-    <footer className="bg-[#101b28] py-12 text-white/75 md:py-14">
+    <footer className="academic-footer">
       <div className="site-container">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[1.2fr_0.6fr_0.6fr_0.6fr]">
+        <div className="footer-grid">
           <div>
-            <h3 className="mb-3 text-xl font-bold text-white">
-              Er. Arjun Neupane
-            </h3>
-            <p className="max-w-md text-sm">
-              I teach computing and computer engineering and supervise student
-              projects and research.
+            <strong className="font-serif text-2xl">Arjun Neupane</strong>
+            <p className="mt-3">
+              Teaching, inquiry and practical learning in computer science and
+              engineering.
             </p>
           </div>
-          <FooterGroup
-            title="For students"
-            links={[
-              ["Courses", "/courses"],
-              ["Access My Courses", "/courses"],
-            ]}
-          />
-          <FooterGroup
-            title="Explore"
-            links={[
-              ["About the Instructor", "/about"],
-              ["Instructor Login", "/instructor-login"],
-            ]}
-          />
-          <FooterGroup
-            title="Contact"
-            links={[
-              ["LinkedIn", profile.linkedinUrl],
-              ["GitHub", profile.githubUrl],
-              [
-                contactEmail || "Contact your instructor",
-                contactEmail ? `mailto:${contactEmail}` : "/contact",
-              ],
-              ["Kathmandu, Nepal", "/contact"],
-            ]}
-          />
+          <div>
+            <h2>Teaching</h2>
+            <Link href="/teaching">Programs & semesters</Link>
+            <Link href="/resources">Find resources</Link>
+            <Link href="/students">Student guidance</Link>
+            <Link href="/notices">Academic notices</Link>
+          </div>
+          <div>
+            <h2>Scholarship</h2>
+            <Link href="/research">Research interests</Link>
+            <Link href="/research#projects">Projects & supervision</Link>
+            <Link href="/publications">Publications</Link>
+            <Link href="/activities">Activities</Link>
+          </div>
+          <div>
+            <h2>Connect</h2>
+            <Link href="/profile">Academic profile</Link>
+            <Link href="/contact">Contact</Link>
+            {profile.links.map((l) => (
+              <a key={l.url} href={l.url}>
+                {l.label} ↗
+              </a>
+            ))}
+          </div>
         </div>
-        <div className="mt-8 border-t border-white/10 pt-5 text-sm text-white/55">
-          &copy; 2026 Er. Arjun Neupane. Independent teaching resource; not an
-          official TU website or endorsement.
+        <div className="footer-bottom">
+          <p>© 2026 Arjun Neupane.</p>
+          <p>
+            Independent academic and teaching resource. Not an official
+            Tribhuvan University website or endorsement.
+          </p>
         </div>
       </div>
     </footer>
-  );
-}
-
-function FooterGroup({
-  title,
-  links,
-}: {
-  title: string;
-  links: readonly (readonly [string, string])[];
-}) {
-  return (
-    <div>
-      <strong className="text-white">{title}</strong>
-      <div className="mt-2 grid gap-2 text-sm">
-        {links.map(([label, href]) =>
-          href.startsWith("http") ? (
-            <a
-              className="text-white/75 hover:text-white"
-              href={href}
-              key={label}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {label}
-            </a>
-          ) : href.startsWith("mailto:") ? (
-            <a
-              className="text-white/75 hover:text-white"
-              href={href}
-              key={label}
-            >
-              {label}
-            </a>
-          ) : (
-            <Link
-              className="text-white/75 hover:text-white"
-              href={href}
-              key={label}
-            >
-              {label}
-            </Link>
-          ),
-        )}
-      </div>
-    </div>
   );
 }

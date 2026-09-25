@@ -1,11 +1,4 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Access My Courses",
-  robots: { index: false, follow: false },
-};
-
-export default function LoginLayout({
+export default function LegacyLayout({
   children,
 }: {
   children: React.ReactNode;
