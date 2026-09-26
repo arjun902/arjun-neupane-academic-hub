@@ -9,13 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#172027",
+        ink: "#26333D",
         muted: "#56616B",
         navy: "#14283F",
         teal: "#176B65",
         "teal-deep": "#176B65",
         gold: "#B08D57",
-        plum: "#7a2d4e",
         line: "#DCDEDB",
         paper: "#F8F7F3",
       },

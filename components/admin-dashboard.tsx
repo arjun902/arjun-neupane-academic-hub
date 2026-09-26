@@ -343,10 +343,9 @@ function AdminPanel() {
           ].map((t) => (
             <button
               key={t}
-              className={
-                "rounded-lg px-3 py-3 text-left text-sm font-bold " +
-                (t === tab ? "bg-white text-navy" : "text-white")
-              }
+              type="button"
+              aria-pressed={t === tab}
+              className="tab-button"
               onClick={() => {
                 setTab(t);
                 setCredential(null);
@@ -599,7 +598,8 @@ function AdminPanel() {
                               : "No expiry"}
                           </span>
                           <button
-                            className="text-red-700 underline"
+                            type="button"
+                            className="btn btn-danger"
                             disabled={busy}
                             onClick={() => {
                               if (confirm("Revoke this course?"))
@@ -937,7 +937,7 @@ function AdminPanel() {
                   {file && (
                     <button
                       type="button"
-                      className="text-sm underline"
+                      className="btn btn-secondary mt-2"
                       onClick={() => setFile(null)}
                     >
                       Clear selected file

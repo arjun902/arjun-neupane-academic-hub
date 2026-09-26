@@ -32,7 +32,9 @@ export function SiteHeader() {
         </Link>
         <button
           ref={toggle}
+          type="button"
           className="menu-toggle"
+          aria-label={open ? "Close menu" : "Open menu"}
           aria-controls="main-navigation"
           aria-expanded={open}
           onClick={() => setOpen(!open)}

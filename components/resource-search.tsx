@@ -115,7 +115,11 @@ export function ResourceSearch() {
             </select>
           </label>
         </div>
-        <button className="text-link mt-3" type="button" onClick={reset}>
+        <button
+          className="btn btn-secondary mt-3"
+          type="button"
+          onClick={reset}
+        >
           Clear filters
         </button>
       </form>

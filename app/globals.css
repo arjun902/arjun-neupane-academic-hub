@@ -3,6 +3,8 @@
 @tailwind utilities;
 :root {
   color-scheme: light;
+  --font-sans: "Segoe UI", Roboto, Arial, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
   --navy: #14283f;
   --teal: #176b65;
   --gold: #b08d57;
@@ -23,7 +25,8 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--text);
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 1rem;
   line-height: 1.7;
   text-rendering: optimizeLegibility;
 }
@@ -44,8 +47,14 @@ select,
 textarea {
   touch-action: manipulation;
 }
-a:hover {
-  color: var(--teal);
+::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+:is(input, select, textarea):disabled {
+  cursor: not-allowed;
+  color: var(--muted);
+  background-color: #f0f1ef;
 }
 :focus-visible {
   outline: 3px solid var(--teal);
@@ -66,7 +75,7 @@ h4 {
 h1,
 h2,
 h3 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-serif);
 }
 h1 {
   font-size: clamp(2.3rem, 4.8vw, 4.4rem);
@@ -90,6 +99,10 @@ main {
   min-height: 60vh;
 }
 main a:not(.btn):hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.text-link:hover {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -130,19 +143,49 @@ h3 {
     @apply my-4 text-muted;
   }
   .btn {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded border px-5 py-3 text-sm font-semibold;
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded border px-5 py-2 text-sm font-semibold transition-colors duration-150;
+  }
+  .btn:disabled {
+    @apply cursor-not-allowed opacity-60;
   }
   .btn-primary {
-    @apply border-navy bg-navy text-white hover:bg-teal hover:text-white;
+    @apply border-navy bg-navy text-white hover:border-teal hover:bg-teal;
   }
   .btn-secondary {
     @apply border-line bg-white text-navy hover:border-teal;
   }
+  .btn-secondary:hover:not(:disabled) {
+    background-color: #f0f7f6;
+  }
   .btn-ghost {
-    @apply border-line text-teal;
+    @apply border-transparent bg-transparent text-teal;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background-color: #f0f7f6;
   }
   .btn-gold {
-    @apply border-line text-navy;
+    @apply border-line bg-white text-navy;
+  }
+  .btn-gold:hover:not(:disabled) {
+    background-color: #f8f4ec;
+  }
+  .btn-danger {
+    @apply border-red-200 bg-white text-red-700 hover:border-red-300;
+  }
+  .btn-danger:hover:not(:disabled) {
+    background-color: #fef2f2;
+  }
+  .tab-button {
+    @apply min-h-11 cursor-pointer rounded border border-transparent px-3 py-2 text-left text-sm font-semibold text-white transition-colors duration-150;
+  }
+  .tab-button:hover:not([aria-pressed="true"]) {
+    background-color: rgb(255 255 255 / 12%);
+  }
+  .tab-button[aria-pressed="true"] {
+    @apply bg-white text-navy;
+  }
+  .tab-button:disabled {
+    @apply cursor-not-allowed opacity-60;
   }
   .form-input {
     @apply min-h-11 w-full rounded border border-line bg-white px-3 py-2 text-ink;
@@ -191,18 +234,18 @@ h3 {
   flex-shrink: 0;
 }
 .monogram {
-  font: bold 34px Georgia;
+  font: bold 34px var(--font-serif);
   color: var(--teal);
   border-right: 1px solid var(--border);
   padding-right: 13px;
 }
 .brand strong {
   display: block;
-  font: 600 18px Georgia;
+  font: 600 18px var(--font-serif);
   color: var(--navy);
 }
 .brand small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .main-nav {
@@ -211,7 +254,7 @@ h3 {
   align-items: center;
 }
 .main-nav a {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   min-height: 44px;
   display: flex;
@@ -224,6 +267,20 @@ h3 {
 }
 .menu-toggle {
   display: none;
+  cursor: pointer;
+  color: var(--navy);
+  background: var(--surface);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.menu-toggle:hover {
+  background: #f0f7f6;
+}
+.menu-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.menu-toggle[aria-expanded="true"] {
+  border-color: var(--teal);
 }
 .page-shell {
   padding-top: 24px;
@@ -595,7 +652,7 @@ h3 {
     gap: 35px;
   }
   .brand small {
-    font-size: 10px;
+    font-size: 12px;
   }
 }
 @media (max-width: 767px) {
@@ -665,7 +722,7 @@ h3 {
     font-size: 16px;
   }
   .brand small {
-    font-size: 8px;
+    font-size: 11px;
   }
   .monogram {
     font-size: 28px;
